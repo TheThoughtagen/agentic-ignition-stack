@@ -1,0 +1,35 @@
+name: Validate starter
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check shell syntax
+        run: bash -n scripts/*.sh
+      - name: Validate Compose interpolation
+        env:
+          IGNITION_IMAGE: inductiveautomation/ignition:8.3.0
+          IGNITION_PORT: "8088"
+          ACCEPT_IGNITION_EULA: Y
+          GATEWAY_ADMIN_USERNAME: ci-admin
+          GATEWAY_ADMIN_PASSWORD: not-a-real-password
+        run: docker compose config --quiet
+      - name: Check for tracked environment files
+        run: |
+          ! git ls-files | grep -E '(^|/)\.env$'
+      - name: Check documentation links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: --no-progress --exclude-mail README.md QUICKSTART.md SECURITY.md CONTRIBUTING.md
+          fail: true

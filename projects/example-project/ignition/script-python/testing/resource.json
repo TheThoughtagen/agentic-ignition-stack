@@ -1,0 +1,13 @@
+{
+  "scope": "A",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [],
+  "attributes": {
+    "lastModification": {
+      "actor": "external",
+      "timestamp": "2026-02-20T00:00:00Z"
+    }
+  }
+}

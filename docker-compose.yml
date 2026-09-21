@@ -1,0 +1,15 @@
+services:
+  ignition:
+    image: ${IGNITION_IMAGE:?Set IGNITION_IMAGE in .env to an explicit, tested Ignition tag}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${IGNITION_PORT:-8088}:8088"
+    environment:
+      ACCEPT_IGNITION_EULA: ${ACCEPT_IGNITION_EULA:?Set ACCEPT_IGNITION_EULA=Y in .env after reviewing the Ignition licence}
+      GATEWAY_ADMIN_USERNAME: ${GATEWAY_ADMIN_USERNAME:?Set a local development username in .env}
+      GATEWAY_ADMIN_PASSWORD: ${GATEWAY_ADMIN_PASSWORD:?Set a local development password in .env}
+    volumes:
+      # Runtime state stays local and is ignored by Git.
+      - ./gateway/data:/usr/local/bin/ignition/data
+      # This bind mount is the Git-tracked source of truth for projects.
+      - ./projects:/usr/local/bin/ignition/data/projects
