@@ -49,6 +49,7 @@ Recommended repository shape:
 .
 ├── docker-compose.yml                 # local gateway definition; version-pinned image
 ├── .env.example                       # variable names only, never credentials
+├── gw-init/git.yaml                   # Git-module sample commissioning map
 ├── projects/                          # Git-tracked Ignition project source
 │   └── <project-name>/
 │       ├── ignition/                  # generated Jython test framework lives here
@@ -89,9 +90,10 @@ The starter pins `inductiveautomation/ignition:8.3.9` in `.env.example`; retain 
 
 1. accept the Ignition EULA only through a local environment variable,
 2. bind-mount `./projects` into the gateway project directory,
-3. keep the rest of the gateway state in an ignored local directory or named Docker volume,
-4. publish the local gateway port only to the development machine, and
-5. use a local-only development administrator password supplied via `.env`.
+3. mount `./gw-init/git.yaml` so the Git module can commission its sample project,
+4. keep the rest of the gateway state in an ignored local directory or named Docker volume,
+5. publish the local gateway port only to the development machine, and
+6. use a local-only development administrator password supplied via `.env`.
 
 Start it:
 
@@ -214,18 +216,13 @@ git push -u origin feature/mixer-status
 
 Use pull requests and require the lint and test workflow to pass before merging. Treat the Git repository—not a running gateway—as the source of truth.
 
-## Optional: Git inside the Designer
+## Git inside the Designer
 
-The [Ignition Git Module](https://github.com/TheThoughtagen/ignition-git-module) is optional. It can make Git approachable for Designer-first teams, but it must point at the same repository and branch policy used by the command-line workflow.
+When `GIT_MODULE_SOURCE` resolves to a local module artifact, bootstrap installs the [Ignition Git Module](https://github.com/TheThoughtagen/ignition-git-module). Compose mounts [`gw-init/git.yaml`](gw-init/git.yaml), which maps the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) `main` branch to the Ignition project `git-example-project`. On first module startup, it clones into the bind-mounted `projects/` directory; that runtime clone is ignored by this orchestration repository because it has its own Git history.
 
-Before enabling it:
+To configure another project, copy the YAML entry and change its repository URI, branch, project name, and user fields. `ignition_userName` must match the Designer/Gateway account that will perform Git operations. Never put a real password or token in `git.yaml`; use the module's runtime secret mechanism for private remotes.
 
-- Decide whether the module checks out directly into the bind-mounted `projects/` path or uses an export/import flow.
-- Test it only on a disposable local gateway first.
-- Document exactly who may commit, pull, switch branches, and resolve conflicts from the Designer.
-- Do not allow two tools to write competing project representations.
-
-If those rules cannot be enforced, leave the module out and use standard Git from the repository root.
+Use the module only on a disposable local gateway until your team has documented who may commit, pull, switch branches, and resolve conflicts from Designer. Do not let the embedded `projects/example-project/` copy and the commissioned `projects/git-example-project/` clone act as competing sources for the same Ignition project name.
 
 ## Publish checklist
 

@@ -8,6 +8,8 @@ gateway/db/
 gateway/config/
 secrets/
 projects/.resources/
+# Runtime clone commissioned from gw-init/git.yaml; source lives in its own repository.
+projects/git-example-project/
 modules/*.modl
 
 # Python

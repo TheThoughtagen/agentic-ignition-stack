@@ -19,8 +19,10 @@ services:
       - gateway-data:/usr/local/bin/ignition/data
       # Generated token/security resources make local API automation unattended.
       - ./gateway/config:/usr/local/bin/ignition/data/config/resources/core
-      # This bind mount is the Git-tracked source of truth for projects.
+      # This bind mount is the Git-tracked source of truth for local projects.
       - ./projects:/usr/local/bin/ignition/data/projects
+      # The Git module commissions its public sample repository from this file.
+      - ./gw-init/git.yaml:/usr/local/bin/ignition/data/git.yaml:ro
 
 volumes:
   gateway-data:

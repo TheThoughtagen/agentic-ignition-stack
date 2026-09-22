@@ -14,7 +14,7 @@ cp .env.example .env
 ./scripts/bootstrap.sh
 ```
 
-Bootstrap generates and registers a random Ignition 8.3 API token, grants its local automation security level, stages the pinned BW Project Scan module, stages the optional local Git module when available, uploads/accepts/installs both, and restarts the Gateway. Generated credentials, config resources, and `.modl` files remain ignored by Git.
+Bootstrap generates and registers a random Ignition 8.3 API token, grants its local automation security level, stages the pinned BW Project Scan module, stages the local Git module when available, uploads/accepts/installs both, and restarts the Gateway. The mounted [`gw-init/git.yaml`](gw-init/git.yaml) commissions the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) as `git-example-project`. Generated credentials, config resources, module files, and the runtime clone remain ignored by this repository.
 
 The Compose configuration enables unsigned modules only for this local development gateway. To deploy another module later:
 
@@ -36,7 +36,7 @@ From that project, run:
 /ignition-scada:init-e2e
 ```
 
-The reference project at `projects/example-project/` already includes the generated gateway Jython/WebDev runner, a sample unit test, and the Perspective-aware Playwright scaffold. Run the commands above when adding another project. Commit their generated source, but not their credentials, browser state, or reports.
+The reference project at `projects/example-project/` already includes the generated gateway Jython/WebDev runner, a sample unit test, and the Perspective-aware Playwright scaffold. The same project is published separately and cloned by the Git module as `projects/git-example-project/`, allowing the module workflow to be exercised without writing Git metadata into the embedded reference project. Run the commands above when adding another project. Commit generated source to its owning repository, but not credentials, browser state, or reports.
 
 ## Validation
 
