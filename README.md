@@ -14,13 +14,17 @@ cp .env.example .env
 ./scripts/bootstrap.sh
 ```
 
-Then complete gateway commissioning, create a least-privilege local API token, and create or import a project under `projects/<project-name>/`. Download the pinned BW Design Group Project Scan Endpoint module and install it in **Gateway → Config → Modules**:
+Then complete gateway commissioning, create a least-privilege local API token, and create or import a project under `projects/<project-name>/`. Stage the pinned BW Design Group Project Scan Endpoint module, then install it in **Gateway → Config → Modules**:
 
 ```bash
+# Stage a locally supplied release artifact (verified against the v1.0.0 SHA-256).
+./scripts/stage-project-scan-module.sh ~/Downloads/Project-Scan-Endpoint.modl
+
+# Or download the pinned upstream release instead.
 ./scripts/download-project-scan-module.sh
-# Expected SHA-256 for v1.0.0:
-# f0ffb9cf90f0dfb55647080399c4699a32d6ded0387e0142b7c1cb6212806722
 ```
+
+The setup stages the module at `modules/Project-Scan-Endpoint.modl`; it remains ignored by Git. Ignition requires custom modules to be installed through the Gateway UI or module API.
 
 Install the Claude Code plugin:
 
