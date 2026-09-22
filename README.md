@@ -24,7 +24,23 @@ Then complete gateway commissioning, create a least-privilege local API token, a
 ./scripts/download-project-scan-module.sh
 ```
 
-The setup stages the module at `modules/Project-Scan-Endpoint.modl`; it remains ignored by Git. Ignition requires custom modules to be installed through the Gateway UI or module API.
+The setup stages the module at `modules/Project-Scan-Endpoint.modl`; it remains ignored by Git. Deploy it through the same Gateway API pipeline used by Whiskey House orchestration:
+
+```bash
+set -a; . ./.env; set +a
+./scripts/install-module.sh modules/Project-Scan-Endpoint.modl
+docker compose --env-file .env restart ignition
+```
+
+The Compose configuration enables unsigned modules only for this local development gateway. To add the optional Git module, stage its local build and use the same deployment path:
+
+```bash
+./scripts/stage-git-module.sh
+./scripts/install-module.sh modules/Git-unsigned.modl
+docker compose --env-file .env restart ignition
+```
+
+The script reads the module ID/version from its own `module.xml`, accepts required EULA/certificate records, uploads, and requests installation.
 
 Install the Claude Code plugin:
 

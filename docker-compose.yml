@@ -9,6 +9,9 @@ services:
       IGNITION_EDITION: ${IGNITION_EDITION:-standard}
       GATEWAY_ADMIN_USERNAME: ${GATEWAY_ADMIN_USERNAME:?Set a local development username in .env}
       GATEWAY_ADMIN_PASSWORD: ${GATEWAY_ADMIN_PASSWORD:?Set a local development password in .env}
+    # Local development only: enables testing unsigned modules such as a local Git-module build.
+    command: >
+      -Dignition.allowunsignedmodules=true -Dia.developer.moduleupload=true
     volumes:
       # A named volume preserves image-provided bootstrap files and keeps runtime state out of Git.
       - gateway-data:/usr/local/bin/ignition/data
