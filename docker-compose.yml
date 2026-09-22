@@ -9,7 +9,10 @@ services:
       GATEWAY_ADMIN_USERNAME: ${GATEWAY_ADMIN_USERNAME:?Set a local development username in .env}
       GATEWAY_ADMIN_PASSWORD: ${GATEWAY_ADMIN_PASSWORD:?Set a local development password in .env}
     volumes:
-      # Runtime state stays local and is ignored by Git.
-      - ./gateway/data:/usr/local/bin/ignition/data
+      # A named volume preserves image-provided bootstrap files and keeps runtime state out of Git.
+      - gateway-data:/usr/local/bin/ignition/data
       # This bind mount is the Git-tracked source of truth for projects.
       - ./projects:/usr/local/bin/ignition/data/projects
+
+volumes:
+  gateway-data:
