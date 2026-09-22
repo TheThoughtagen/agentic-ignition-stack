@@ -5,6 +5,8 @@
 gateway/data/
 gateway/logs/
 gateway/db/
+gateway/config/
+secrets/
 projects/.resources/
 modules/*.modl
 

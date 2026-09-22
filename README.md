@@ -14,33 +14,14 @@ cp .env.example .env
 ./scripts/bootstrap.sh
 ```
 
-Then complete gateway commissioning, create a least-privilege local API token, and create or import a project under `projects/<project-name>/`. Stage the pinned BW Design Group Project Scan Endpoint module, then install it in **Gateway → Config → Modules**:
+Bootstrap generates and registers a random Ignition 8.3 API token, grants its local automation security level, stages the pinned BW Project Scan module, stages the optional local Git module when available, uploads/accepts/installs both, and restarts the Gateway. Generated credentials, config resources, and `.modl` files remain ignored by Git.
+
+The Compose configuration enables unsigned modules only for this local development gateway. To deploy another module later:
 
 ```bash
-# Stage a locally supplied release artifact (verified against the v1.0.0 SHA-256).
-./scripts/stage-project-scan-module.sh ~/Downloads/Project-Scan-Endpoint.modl
-
-# Or download the pinned upstream release instead.
-./scripts/download-project-scan-module.sh
-```
-
-The setup stages the module at `modules/Project-Scan-Endpoint.modl`; it remains ignored by Git. Deploy it through the same Gateway API pipeline used by Whiskey House orchestration:
-
-```bash
-set -a; . ./.env; set +a
-./scripts/install-module.sh modules/Project-Scan-Endpoint.modl
+./scripts/install-module.sh /path/to/module.modl
 docker compose --env-file .env restart ignition
 ```
-
-The Compose configuration enables unsigned modules only for this local development gateway. To add the optional Git module, stage its local build and use the same deployment path:
-
-```bash
-./scripts/stage-git-module.sh
-./scripts/install-module.sh modules/Git-unsigned.modl
-docker compose --env-file .env restart ignition
-```
-
-The script reads the module ID/version from its own `module.xml`, accepts required EULA/certificate records, uploads, and requests installation.
 
 Install the Claude Code plugin:
 

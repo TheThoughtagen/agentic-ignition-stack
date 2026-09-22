@@ -100,7 +100,7 @@ docker compose up -d
 docker compose logs -f ignition
 ```
 
-Open the local gateway and complete commissioning. Create an API token at **Platform → Security → API Keys** for the development gateway. Give it only the permissions required by this stack. For a local HTTP gateway, configure the token as permitted by your gateway's security settings.
+Bootstrap creates a random local API token, stores the plaintext only in ignored `secrets/ignition-api-token`, registers its hash as an Ignition 8.3 config resource, and pre-seeds the required local automation permissions. No manual token creation is required.
 
 Verify the gateway before proceeding:
 
@@ -124,16 +124,16 @@ Confirm the module is present:
 
 ```bash
 curl --fail \
-  -H "X-Ignition-API-Token: $IGNITION_API_TOKEN" \
-  "$IGNITION_GATEWAY_URL/data/project-scan-endpoint/confirm-support"
+  -H "X-Ignition-API-Token: $(cat secrets/ignition-api-token)" \
+  "http://127.0.0.1:8088/data/project-scan-endpoint/confirm-support"
 ```
 
 After an agent or developer changes files under `projects/`, rescan them:
 
 ```bash
 curl --fail --request POST \
-  -H "X-Ignition-API-Token: $IGNITION_API_TOKEN" \
-  "$IGNITION_GATEWAY_URL/data/project-scan-endpoint/scan?updateDesigners=true&forceUpdate=true"
+  -H "X-Ignition-API-Token: $(cat secrets/ignition-api-token)" \
+  "http://127.0.0.1:8088/data/project-scan-endpoint/scan?updateDesigners=true&forceUpdate=true"
 ```
 
 Put this call behind `scripts/scan-project.sh`; the script must fail if required environment variables are missing and must never print the token.
