@@ -5,6 +5,7 @@
     "test": "npx playwright test",
     "test:headed": "npx playwright test --headed",
     "test:smoke": "npx playwright test tests/smoke/",
+    "test:git-module": "playwright test --project=gateway-chromium",
     "report": "npx playwright show-report"
   },
   "devDependencies": {

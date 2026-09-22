@@ -218,11 +218,22 @@ Use pull requests and require the lint and test workflow to pass before merging.
 
 ## Git inside the Designer
 
-When `GIT_MODULE_SOURCE` resolves to a local module artifact, bootstrap installs the [Ignition Git Module](https://github.com/TheThoughtagen/ignition-git-module). Compose mounts [`gw-init/git.yaml`](gw-init/git.yaml), which maps the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) `main` branch to the Ignition project `git-example-project`. On first module startup, it clones into the bind-mounted `projects/` directory; that runtime clone is ignored by this orchestration repository because it has its own Git history.
+When `GIT_MODULE_SOURCE` resolves to a local module artifact, bootstrap installs the [Ignition Git Module](https://github.com/TheThoughtagen/ignition-git-module). Build the current module source with `mvn clean package -DskipTests` and point `GIT_MODULE_SOURCE` at `git-build/target/Git-unsigned.modl`; older local artifacts may predate the Ignition 8.3 Gateway-route fix. Compose mounts [`gw-init/git.yaml`](gw-init/git.yaml), which maps the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) `main` branch to the Ignition project `git-example-project`. On first module startup, it clones into the bind-mounted `projects/` directory; that runtime clone is ignored by this orchestration repository because it has its own Git history.
 
 To configure another project, copy the YAML entry and change its repository URI, branch, project name, and user fields. `ignition_userName` must match the Designer/Gateway account that will perform Git operations. Never put a real password or token in `git.yaml`; use the module's runtime secret mechanism for private remotes.
 
 Use the module only on a disposable local gateway until your team has documented who may commit, pull, switch branches, and resolve conflicts from Designer. Do not let the embedded `projects/example-project/` copy and the commissioned `projects/git-example-project/` clone act as competing sources for the same Ignition project name.
+
+Verify the authenticated Gateway page and backing route with Playwright:
+
+```bash
+cd projects/example-project/e2e
+npm install
+IGNITION_URL=http://127.0.0.1:8088 \
+  IGNITION_USER="$GATEWAY_ADMIN_USERNAME" \
+  IGNITION_PASSWORD="$GATEWAY_ADMIN_PASSWORD" \
+  npm run test:git-module
+```
 
 ## Publish checklist
 

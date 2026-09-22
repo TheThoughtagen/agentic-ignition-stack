@@ -47,7 +47,15 @@ set -a; . ./.env; set +a
 ./scripts/test.sh
 ```
 
-The validation order is static lint → forced project scan → gateway Jython tests → Playwright. A nonzero test result blocks the command.
+The validation order is static lint → forced project scan → gateway Jython tests → Playwright. A nonzero test result blocks the command. To validate the Git module's authenticated Gateway page and `/data/git/projects` route independently:
+
+```bash
+cd projects/example-project/e2e
+IGNITION_URL=http://127.0.0.1:8088 \
+  IGNITION_USER="$GATEWAY_ADMIN_USERNAME" \
+  IGNITION_PASSWORD="$GATEWAY_ADMIN_PASSWORD" \
+  npm run test:git-module
+```
 
 ## Repository rules
 

@@ -34,7 +34,7 @@ if [[ "${AUTO_INSTALL_MODULES:-true}" == "true" ]]; then
     ./scripts/download-project-scan-module.sh
   fi
 
-  git_source="${GIT_MODULE_SOURCE:-$HOME/whiskeyhouse/whk-environment-orchestration/Git-unsigned.modl}"
+  git_source="${GIT_MODULE_SOURCE:-$HOME/whiskeyhouse/ignition-git-module/git-build/target/Git-unsigned.modl}"
   git_source="${git_source/#\~/$HOME}"
   if [[ -f "$git_source" ]]; then
     ./scripts/stage-git-module.sh "$git_source"
