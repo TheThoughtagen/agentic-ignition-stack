@@ -5,6 +5,7 @@
 gateway/data/
 gateway/logs/
 gateway/db/
+projects/.resources/
 modules/*.modl
 
 # Python
