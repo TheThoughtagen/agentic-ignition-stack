@@ -58,6 +58,19 @@ IGNITION_URL=http://127.0.0.1:8088 \
   npm run test:git-module
 ```
 
+## Record the walkthrough
+
+The checked-in VHS tape records the running Gateway, commissioned Git project, bundled Claude plugin installation, and Playwright validation without displaying credentials or tokens:
+
+```bash
+go install github.com/charmbracelet/vhs@v0.11.0
+VHS_BIN="$(go env GOPATH)/bin/vhs" ./scripts/record-demo.sh
+```
+
+The recorder is pinned to VHS 0.11.0 because VHS 0.12.0 currently exits successfully without rendering its output files.
+
+Generated MP4 and GIF files are written under ignored `artifacts/` so they can be reviewed before being attached to an email or published.
+
 ## Repository rules
 
 - Git-tracked project files are the source of truth; the running gateway is a disposable development target.

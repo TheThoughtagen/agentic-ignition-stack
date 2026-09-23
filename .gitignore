@@ -24,6 +24,9 @@ e2e/test-results/
 e2e/playwright-report/
 e2e/.playwright-running.lock
 
-# General test output
+# General test and generated demo output
 test-results/
 playwright-report/
+artifacts/*.mp4
+artifacts/*.gif
+artifacts/*.webm
