@@ -31,5 +31,5 @@ jobs:
       - name: Check documentation links
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
-          args: --no-progress --exclude-mail README.md QUICKSTART.md SECURITY.md CONTRIBUTING.md
+          args: --no-progress README.md QUICKSTART.md SECURITY.md CONTRIBUTING.md
           fail: true
