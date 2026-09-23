@@ -152,7 +152,9 @@ ignition-lint --project projects/example-project --profile default
 Install the Claude Code plugin globally:
 
 ```bash
-claude plugin add --from whiskeyhouse/ignition-nvim --path claude-code-plugin
+claude plugin marketplace add TheThoughtagen/ignition-ide-plugins
+claude plugin install ignition-scada@ignition-tools
+claude plugin details ignition-scada@ignition-tools
 ```
 
 For repository-local agent instructions and auto-lint hooks, use the plugin's reviewed templates from the root of each Ignition project (the directory containing `project.json`). Commit the generated source after review. The plugin's test scaffolds are project-local: gateway testing resources live in the Ignition project and Playwright lives at `<project>/e2e/`.

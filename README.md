@@ -26,7 +26,8 @@ docker compose --env-file .env restart ignition
 Install the Claude Code plugin:
 
 ```bash
-claude plugin add --from whiskeyhouse/ignition-nvim --path claude-code-plugin
+claude plugin marketplace add TheThoughtagen/ignition-ide-plugins
+claude plugin install ignition-scada@ignition-tools
 ```
 
 From that project, run:
