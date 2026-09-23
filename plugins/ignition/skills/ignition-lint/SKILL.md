@@ -1,6 +1,6 @@
 ---
 name: ignition-lint
-description: Run ignition-lint on files or the whole project. Usage — /ignition-scada:ignition-lint [file|directory|profile]
+description: Run ignition-lint on files or the whole project. Usage — /ignition:ignition-lint [file|directory|profile]
 ---
 
 # Run ignition-lint

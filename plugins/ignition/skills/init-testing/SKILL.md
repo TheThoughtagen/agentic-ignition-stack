@@ -1,6 +1,6 @@
 ---
 name: init-testing
-description: Scaffold the Jython test framework, WebDev test endpoints, and type stubs into an Ignition project. Usage — /ignition-scada:init-testing [--all] [--force]
+description: Scaffold the Jython test framework, WebDev test endpoints, and type stubs into an Ignition project. Usage — /ignition:init-testing [--all] [--force]
 ---
 
 # Initialize Ignition Testing
@@ -66,4 +66,4 @@ Scaffold a complete Jython test framework into the current Ignition project. Thi
    - Write `@test` decorated functions
    - Run from Script Console: `print testing.runner.run_all()`
 
-If `$ARGUMENTS` contains `--all` and the project has Perspective (`has_perspective` is true), automatically proceed to run the `/ignition-scada:init-e2e` flow after completing the testing setup.
+If `$ARGUMENTS` contains `--all` and the project has Perspective (`has_perspective` is true), automatically proceed to run the `/ignition:init-e2e` flow after completing the testing setup.

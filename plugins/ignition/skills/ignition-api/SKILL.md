@@ -6,7 +6,7 @@ user-invocable: false
 
 # Ignition System API Reference
 
-You are writing code for **Ignition SCADA** by Inductive Automation. Scripts run in **Jython 2.7** (Python 2.7 on JVM). The scripting API is `system.*`.
+You are writing code for **Ignition** by Inductive Automation. Scripts run in **Jython 2.7** (Python 2.7 on JVM). The scripting API is `system.*`.
 
 ## CRITICAL: resource.json Required for EVERY Ignition Resource
 

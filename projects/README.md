@@ -11,4 +11,4 @@ projects/
     └── com.inductiveautomation.webdev/
 ```
 
-Set `IGNITION_PROJECT=<project-name>` in `.env`. From the project root, run the Claude plugin's `/ignition-scada:init-testing` and `/ignition-scada:init-e2e` commands, then commit the generated source files.
+Set `IGNITION_PROJECT=<project-name>` in `.env`. From the project root, run the Claude plugin's `/ignition:init-testing` and `/ignition:init-e2e` commands, then commit the generated source files.

@@ -18,7 +18,7 @@ This project uses Playwright to test Ignition Perspective views in a real browse
 
 ## Inheritable Projects
 
-E2E tests target Perspective views rendered in a browser. Inheritable (parent) projects — those where other projects list them as `"parent"` in `project.json` — typically have no `com.inductiveautomation.perspective/` directory and no views. If you're in a parent project, E2E tests can be proxied through a child project that has Perspective views. The `/ignition-scada:test ui` command detects this automatically, finds child projects with E2E setup, and runs Playwright from the child's `e2e/` directory.
+E2E tests target Perspective views rendered in a browser. Inheritable (parent) projects — those where other projects list them as `"parent"` in `project.json` — typically have no `com.inductiveautomation.perspective/` directory and no views. If you're in a parent project, E2E tests can be proxied through a child project that has Perspective views. The `/ignition:test ui` command detects this automatically, finds child projects with E2E setup, and runs Playwright from the child's `e2e/` directory.
 
 ## Perspective DOM Conventions (CRITICAL)
 

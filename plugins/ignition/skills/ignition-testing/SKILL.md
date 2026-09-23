@@ -291,7 +291,7 @@ If the current project `is_parent == true` (other projects list it as their pare
 
 - **Jython tests** work normally — the test framework lives here, and the runner discovers `__tests__` modules in both this project and child projects
 - **WebDev endpoints** work normally — each project has its own
-- **E2E/Playwright tests** are typically N/A — inheritable projects usually have no Perspective views. E2E should be set up and run from a child project that has views. The `/ignition-scada:test ui` command handles proxy testing through children automatically.
+- **E2E/Playwright tests** are typically N/A — inheritable projects usually have no Perspective views. E2E should be set up and run from a child project that has views. The `/ignition:test ui` command handles proxy testing through children automatically.
 
 ## Common Patterns
 

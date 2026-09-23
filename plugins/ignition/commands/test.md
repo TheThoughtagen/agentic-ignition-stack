@@ -8,4 +8,4 @@ Run Jython gateway tests or Playwright e2e tests.
 
 $ARGUMENTS
 
-Load and follow the instructions in the `ignition-scada:test` skill (skills/test/SKILL.md).
+Load and follow the instructions in the `ignition:test` skill (skills/test/SKILL.md).

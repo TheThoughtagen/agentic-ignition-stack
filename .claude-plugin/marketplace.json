@@ -8,9 +8,9 @@
   },
   "plugins": [
     {
-      "name": "ignition-scada",
-      "source": "./plugins/ignition-scada",
-      "description": "Ignition SCADA API knowledge, linting hooks, test scaffolding, and automated testing",
+      "name": "ignition",
+      "source": "./plugins/ignition",
+      "description": "Ignition API knowledge, linting hooks, test scaffolding, and automated testing",
       "version": "0.3.0",
       "author": {
         "name": "TheThoughtagen"

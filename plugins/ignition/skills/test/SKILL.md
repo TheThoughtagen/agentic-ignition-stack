@@ -1,6 +1,6 @@
 ---
 name: test
-description: Run Jython gateway tests or Playwright e2e tests. Usage — /ignition-scada:test [module|package|ui|e2e|smoke]
+description: Run Jython gateway tests or Playwright e2e tests. Usage — /ignition:test [module|package|ui|e2e|smoke]
 ---
 
 # Run Tests
@@ -34,7 +34,7 @@ Run tests for the current Ignition project. Routes to gateway tests (Jython) or 
    ${CLAUDE_PLUGIN_ROOT}/scripts/detect-project.sh
    ```
 
-2. Check that test infrastructure exists (`existing_testing.jython_framework` and `existing_testing.webdev_endpoints`). If not, tell the user: "Test infrastructure not found. Run `/ignition-scada:init-testing` first."
+2. Check that test infrastructure exists (`existing_testing.jython_framework` and `existing_testing.webdev_endpoints`). If not, tell the user: "Test infrastructure not found. Run `/ignition:init-testing` first."
 
 3. **Commit pending changes** before proceeding. The force scan in the next step can trigger the Designer or Git module to write back to the project directory — uncommitted work could be overwritten. Avoid `git stash` here: stashing removes the edits from the working tree, so the test run would exercise old code rather than your current changes.
 
@@ -87,7 +87,7 @@ If `is_parent == true` AND `has_perspective == false`, this project has no Persp
 - Check the `children` array for entries where `has_e2e == true`
 - **One child with E2E:** Tell the user: "This is an inheritable project with no Perspective views. Running E2E tests through child project *{child.name}*." Then execute Playwright from `{child.root}/e2e/` (continue to step 3 below with `E2E_DIR={child.root}/e2e`).
 - **Multiple children with E2E:** Ask the user which child to target, then run from that child's `e2e/` directory.
-- **No children with E2E:** Check if any children have `has_perspective == true`. If so, suggest: "Child project *{child.name}* has Perspective views but no E2E setup. Run `/ignition-scada:init-e2e` from that project first." If no children have Perspective at all, explain that E2E tests need a project with Perspective views. Suggest using `/ignition-scada:test` (no `ui` argument) for Jython gateway tests, which work normally in this project.
+- **No children with E2E:** Check if any children have `has_perspective == true`. If so, suggest: "Child project *{child.name}* has Perspective views but no E2E setup. Run `/ignition:init-e2e` from that project first." If no children have Perspective at all, explain that E2E tests need a project with Perspective views. Suggest using `/ignition:test` (no `ui` argument) for Jython gateway tests, which work normally in this project.
 
 If `is_parent == true` AND `has_perspective == true`: proceed normally (parent has its own views).
 

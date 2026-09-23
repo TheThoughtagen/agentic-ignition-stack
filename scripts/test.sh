@@ -19,7 +19,7 @@ ignition-lint --project "$project_dir" --profile default
 ./scripts/run-gateway-tests.sh
 
 if [[ ! -d "${project_dir}/e2e" ]]; then
-  echo "No Playwright scaffold found at ${project_dir}/e2e. Run /ignition-scada:init-e2e first." >&2
+  echo "No Playwright scaffold found at ${project_dir}/e2e. Run /ignition:init-e2e first." >&2
   exit 1
 fi
 

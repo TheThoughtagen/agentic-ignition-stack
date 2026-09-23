@@ -8,4 +8,4 @@ Scaffold the Jython test framework, WebDev test endpoints, and type stubs into a
 
 $ARGUMENTS
 
-Load and follow the instructions in the `ignition-scada:init-testing` skill (skills/init-testing/SKILL.md).
+Load and follow the instructions in the `ignition:init-testing` skill (skills/init-testing/SKILL.md).

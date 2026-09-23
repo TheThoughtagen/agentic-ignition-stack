@@ -1,6 +1,6 @@
 # Agentic Ignition Stack
 
-A public, development-only starter for Git-native Ignition 8.3 work with Docker Compose, [`ign`](https://github.com/TheThoughtagen/ignition-cli), [`ignition-mcp`](https://github.com/WhiskeyHouse/ignition-mcp), the bundled [Ignition Claude Code plugin](plugins/ignition-scada), BW Design Group's [Project Scan Endpoint](https://github.com/bw-design-group/ignition-project-scan-endpoint), gateway Jython tests, and Playwright Perspective tests.
+A public, development-only starter for Git-native Ignition 8.3 work with Docker Compose, [`ign`](https://github.com/TheThoughtagen/ignition-cli), [`ignition-mcp`](https://github.com/WhiskeyHouse/ignition-mcp), the bundled [Ignition Claude Code plugin](plugins/ignition), BW Design Group's [Project Scan Endpoint](https://github.com/bw-design-group/ignition-project-scan-endpoint), gateway Jython tests, and Playwright Perspective tests.
 
 ## Start here
 
@@ -27,14 +27,14 @@ Install the Claude Code plugin:
 
 ```bash
 claude plugin marketplace add TheThoughtagen/agentic-ignition-stack
-claude plugin install ignition-scada@agentic-ignition-stack
+claude plugin install ignition@agentic-ignition-stack
 ```
 
 From that project, run:
 
 ```text
-/ignition-scada:init-testing
-/ignition-scada:init-e2e
+/ignition:init-testing
+/ignition:init-e2e
 ```
 
 The reference project at `projects/example-project/` already includes the generated gateway Jython/WebDev runner, a sample unit test, and the Perspective-aware Playwright scaffold. The same project is published separately and cloned by the Git module as `projects/git-example-project/`, allowing the module workflow to be exercised without writing Git metadata into the embedded reference project. Run the commands above when adding another project. Commit generated source to its owning repository, but not credentials, browser state, or reports.

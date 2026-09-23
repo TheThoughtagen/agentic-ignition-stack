@@ -1,6 +1,6 @@
-# Ignition SCADA — Claude Code Plugin
+# Ignition — Claude Code Plugin
 
-A Claude Code plugin that gives Claude full domain awareness when working on Ignition SCADA projects. Includes auto-linting, the complete `system.*` API reference (14 modules, 239 functions), the expression language catalog (104 functions), and automated test scaffolding for both Jython gateway tests and Playwright e2e tests.
+A Claude Code plugin that gives Claude full domain awareness when working on Ignition projects. Includes auto-linting, the complete `system.*` API reference (14 modules, 239 functions), the expression language catalog (104 functions), and automated test scaffolding for both Jython gateway tests and Playwright e2e tests.
 
 ## What It Does
 
@@ -9,23 +9,23 @@ A Claude Code plugin that gives Claude full domain awareness when working on Ign
 | **Auto-lint hook** | Runs `ignition-lint` after every Write/Edit on `.py`, `view.json`, and `tags.json` files. Diagnostics are fed back to Claude so it fixes issues immediately. |
 | **API reference** | Claude knows every `system.*` function — completions, conventions, anti-patterns — without you having to explain the API. |
 | **Expression language** | Claude understands Ignition's expression syntax (NOT Python) and all 104 built-in functions. |
-| **Manual lint skill** | Run `/ignition-scada:ignition-lint` to lint specific files or the whole project on demand. |
-| **Test scaffolding** | `/ignition-scada:init-testing` scaffolds a Jython test framework (runner, assertions, decorators) + WebDev endpoints + type stubs. `/ignition-scada:init-e2e` adds Playwright browser tests. |
-| **Test runner** | `/ignition-scada:test` runs gateway Jython tests or Playwright e2e tests with smart routing. |
+| **Manual lint skill** | Run `/ignition:ignition-lint` to lint specific files or the whole project on demand. |
+| **Test scaffolding** | `/ignition:init-testing` scaffolds a Jython test framework (runner, assertions, decorators) + WebDev endpoints + type stubs. `/ignition:init-e2e` adds Playwright browser tests. |
+| **Test runner** | `/ignition:test` runs gateway Jython tests or Playwright e2e tests with smart routing. |
 | **Auto-test hooks** | After `git commit`, runs gateway tests automatically. After editing a `view.json`, runs scoped Playwright tests. |
 
 ## Install
 
 ```bash
 claude plugin marketplace add TheThoughtagen/agentic-ignition-stack
-claude plugin install ignition-scada@agentic-ignition-stack
+claude plugin install ignition@agentic-ignition-stack
 ```
 
 Or register a local clone as the marketplace source:
 
 ```bash
 claude plugin marketplace add /path/to/agentic-ignition-stack
-claude plugin install ignition-scada@agentic-ignition-stack
+claude plugin install ignition@agentic-ignition-stack
 ```
 
 ## Prerequisites
@@ -64,10 +64,10 @@ Eight skills are bundled:
 | `ignition-expressions` | Claude-only | Expression language syntax and all 104 built-in functions. |
 | `ignition-testing` | Claude-only | Test framework reference — `testing.*` modules, decorators, assertions, WebDev endpoints, discovery conventions. |
 | `ignition-e2e` | Claude-only | Playwright reference — Perspective DOM conventions, PerspectivePage, component wrappers, gateway API helper. |
-| `ignition-lint` | User + Claude | `/ignition-scada:ignition-lint` — lint files or the whole project on demand. |
-| `init-testing` | User + Claude | `/ignition-scada:init-testing` — scaffold Jython test framework + WebDev endpoints + type stubs. |
-| `init-e2e` | User + Claude | `/ignition-scada:init-e2e` — scaffold Playwright browser tests for Perspective views. |
-| `test` | User + Claude | `/ignition-scada:test` — run gateway Jython tests or Playwright browser tests. |
+| `ignition-lint` | User + Claude | `/ignition:ignition-lint` — lint files or the whole project on demand. |
+| `init-testing` | User + Claude | `/ignition:init-testing` — scaffold Jython test framework + WebDev endpoints + type stubs. |
+| `init-e2e` | User + Claude | `/ignition:init-e2e` — scaffold Playwright browser tests for Perspective views. |
+| `test` | User + Claude | `/ignition:test` — run gateway Jython tests or Playwright browser tests. |
 
 Claude-only skills are never shown in the `/` menu — they're background knowledge that Claude draws on when relevant.
 
@@ -80,16 +80,16 @@ The plugin is globally reusable across Ignition projects. This stack also includ
 Two commands to go from zero to a full test suite:
 
 ```bash
-/ignition-scada:init-testing    # Gateway Jython tests
-/ignition-scada:init-e2e        # Playwright browser tests (Perspective)
+/ignition:init-testing    # Gateway Jython tests
+/ignition:init-e2e        # Playwright browser tests (Perspective)
 ```
 
-### What happens when you run `/ignition-scada:init-testing`
+### What happens when you run `/ignition:init-testing`
 
 The plugin auto-detects your project — name, gateway, tag providers, parent project inheritance — and scaffolds everything you need:
 
 ```text
-❯ /ignition-scada:init-testing
+❯ /ignition:init-testing
 
 ⏺ Here's what I found:
 
@@ -127,12 +127,12 @@ The plugin auto-detects your project — name, gateway, tag providers, parent pr
 
 It understands Ignition project inheritance — if your parent project already has the test framework, it skips duplicating scripts and only creates what each project actually needs (WebDev endpoints are project-scoped in Ignition).
 
-### What happens when you run `/ignition-scada:init-e2e`
+### What happens when you run `/ignition:init-e2e`
 
 Scaffolds Playwright browser tests with Perspective-aware page objects, then authenticates and runs smoke tests:
 
 ```text
-❯ /ignition-scada:init-e2e
+❯ /ignition:init-e2e
 
 ⏺ Perspective module found. Parent project has e2e/.env — copying
   credentials and updating project name.
@@ -156,21 +156,21 @@ Scaffolds Playwright browser tests with Perspective-aware page objects, then aut
 ### Running tests
 
 ```bash
-/ignition-scada:test                    # All gateway Jython tests
-/ignition-scada:test changeover         # Specific module
-/ignition-scada:test core.mes           # By package prefix
-/ignition-scada:test ui                 # All Playwright browser tests
-/ignition-scada:test ui smoke           # Playwright smoke tests only
+/ignition:test                    # All gateway Jython tests
+/ignition:test changeover         # Specific module
+/ignition:test core.mes           # By package prefix
+/ignition:test ui                 # All Playwright browser tests
+/ignition:test ui smoke           # Playwright smoke tests only
 ```
 
 ### What gets scaffolded
 
-**`/ignition-scada:init-testing`** creates:
+**`/ignition:init-testing`** creates:
 - `ignition/script-python/testing/` — 5 modules (runner, assertions, decorators, helpers, reporter) — *skipped if inherited from parent*
 - `com.inductiveautomation.webdev/resources/testing/` — 2 endpoints (run, tags) — *always created, not inherited*
 - `.ignition-stubs/testing/` — type stubs for IDE completion
 
-**`/ignition-scada:init-e2e`** creates:
+**`/ignition:init-e2e`** creates:
 - `e2e/` — Playwright config, auth fixtures, gateway API helper, PerspectivePage page object, component wrappers (Button, Table), smoke tests
 
 ### Deterministic mode (no Claude)

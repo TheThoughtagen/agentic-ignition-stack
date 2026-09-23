@@ -1,6 +1,6 @@
 ---
 name: init-e2e
-description: Scaffold Playwright e2e tests for Perspective views into an Ignition project. Usage — /ignition-scada:init-e2e [--force]
+description: Scaffold Playwright e2e tests for Perspective views into an Ignition project. Usage — /ignition:init-e2e [--force]
 ---
 
 # Initialize E2E Tests
@@ -36,7 +36,7 @@ Scaffold a complete Playwright e2e test setup for Perspective views. This create
 
    If the user picks a child project, run the scaffold steps below using the **child's** `--project-root` and `--project-name` instead of the current project's. The E2E setup lives in the child's directory.
 
-   If no children have Perspective views, explain that E2E tests need a project with `com.inductiveautomation.perspective/` views. Jython gateway tests (`/ignition-scada:init-testing`, `/ignition-scada:test`) still work normally in this project.
+   If no children have Perspective views, explain that E2E tests need a project with `com.inductiveautomation.perspective/` views. Jython gateway tests (`/ignition:init-testing`, `/ignition:test`) still work normally in this project.
 
    **Do not proceed** with scaffolding in the parent project.
 

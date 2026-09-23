@@ -14,4 +14,4 @@ This repository targets a local, disposable Ignition development gateway.
 
 ## Testing
 
-Use `/ignition-scada:init-testing` to add the Jython framework and WebDev `testing/run` endpoint. Use `/ignition-scada:init-e2e` from a Perspective project to add Playwright. Gateway tests are the default; run UI tests when Perspective behavior changes.
+Use `/ignition:init-testing` to add the Jython framework and WebDev `testing/run` endpoint. Use `/ignition:init-e2e` from a Perspective project to add Playwright. Gateway tests are the default; run UI tests when Perspective behavior changes.
