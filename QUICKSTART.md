@@ -11,7 +11,7 @@ Run an Ignition 8.3 development gateway locally, keep the project in Git, and gi
 | Local gateway | Docker Compose + Ignition | A repeatable development environment |
 | Gateway control | [`ign`](https://github.com/TheThoughtagen/ignition-cli) | Scriptable gateway operations, health checks, project work, and Docker rigs |
 | AI gateway access | [`ignition-mcp`](https://github.com/WhiskeyHouse/ignition-mcp) | A scoped MCP interface to the Ignition 8.3 REST API |
-| Agent domain knowledge | [`ignition-ide-plugins`](https://github.com/TheThoughtagen/ignition-ide-plugins) Claude Code plugin | Ignition API context, expressions, linting, and test scaffolds |
+| Agent domain knowledge | Bundled [`ignition-scada`](plugins/ignition-scada) Claude Code plugin | Ignition API context, expressions, linting, and test scaffolds |
 | Fast project reload | [Project Scan Endpoint](https://github.com/bw-design-group/ignition-project-scan-endpoint) | A REST endpoint that asks the gateway to rescan project files after an edit |
 | Static quality gate | [`ignition-lint`](https://github.com/TheThoughtagen/ignition-lint) | Validates Jython, Perspective, bindings, tags, and project conventions before runtime |
 | Gateway tests | Plugin-generated gateway test scaffold | Exercises scripts against the running development gateway |
@@ -49,6 +49,8 @@ Recommended repository shape:
 .
 ├── docker-compose.yml                 # local gateway definition; version-pinned image
 ├── .env.example                       # variable names only, never credentials
+├── .claude-plugin/marketplace.json    # installs this repo as a Claude marketplace
+├── plugins/ignition-scada/            # bundled Claude skills, hooks, and scaffolds
 ├── gw-init/git.yaml                   # Git-module sample commissioning map
 ├── projects/                          # Git-tracked Ignition project source
 │   └── <project-name>/
@@ -152,9 +154,9 @@ ignition-lint --project projects/example-project --profile default
 Install the Claude Code plugin globally:
 
 ```bash
-claude plugin marketplace add TheThoughtagen/ignition-ide-plugins
-claude plugin install ignition-scada@ignition-tools
-claude plugin details ignition-scada@ignition-tools
+claude plugin marketplace add TheThoughtagen/agentic-ignition-stack
+claude plugin install ignition-scada@agentic-ignition-stack
+claude plugin details ignition-scada@agentic-ignition-stack
 ```
 
 For repository-local agent instructions and auto-lint hooks, use the plugin's reviewed templates from the root of each Ignition project (the directory containing `project.json`). Commit the generated source after review. The plugin's test scaffolds are project-local: gateway testing resources live in the Ignition project and Playwright lives at `<project>/e2e/`.
@@ -255,6 +257,6 @@ Before making the repository public:
 - [Ignition 8.3 API collection](https://github.com/inductiveautomation/83-api)
 - [`ign` CLI](https://github.com/TheThoughtagen/ignition-cli)
 - [`ignition-mcp`](https://github.com/WhiskeyHouse/ignition-mcp)
-- [Ignition Dev Tools / Claude Code plugin](https://github.com/TheThoughtagen/ignition-ide-plugins)
+- [Bundled Ignition Claude Code plugin](plugins/ignition-scada)
 - [`ignition-lint`](https://github.com/TheThoughtagen/ignition-lint)
 - [BW Project Scan Endpoint](https://github.com/bw-design-group/ignition-project-scan-endpoint)

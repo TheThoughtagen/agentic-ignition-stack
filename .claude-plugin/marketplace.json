@@ -1,0 +1,32 @@
+{
+  "name": "agentic-ignition-stack",
+  "owner": {
+    "name": "TheThoughtagen"
+  },
+  "metadata": {
+    "description": "Claude Code tooling for the Agentic Ignition Stack"
+  },
+  "plugins": [
+    {
+      "name": "ignition-scada",
+      "source": "./plugins/ignition-scada",
+      "description": "Ignition SCADA API knowledge, linting hooks, test scaffolding, and automated testing",
+      "version": "0.3.0",
+      "author": {
+        "name": "TheThoughtagen"
+      },
+      "homepage": "https://github.com/TheThoughtagen/agentic-ignition-stack",
+      "repository": "https://github.com/TheThoughtagen/agentic-ignition-stack",
+      "license": "MIT",
+      "keywords": [
+        "ignition",
+        "scada",
+        "ics",
+        "inductive-automation",
+        "jython",
+        "testing",
+        "playwright"
+      ]
+    }
+  ]
+}
