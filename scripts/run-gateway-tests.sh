@@ -2,7 +2,7 @@
 set -euo pipefail
 
 : "${IGNITION_GATEWAY_URL:?Set IGNITION_GATEWAY_URL}"
-: "${IGNITION_PROJECT:?Set IGNITION_PROJECT to the generated test project's directory name}"
+: "${IGNITION_PROJECT:?Set IGNITION_PROJECT to the generated test project directory name}"
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "jq is required to evaluate the gateway test result." >&2
