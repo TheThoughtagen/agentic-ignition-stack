@@ -21,6 +21,7 @@ Run a full health check on the current Ignition project and report what's workin
 ### Gateway Connection
 - `gateway_reachable: true` → pass, show URL
 - `gateway_reachable: false` → warn, explain gateway needs to be running for tests. Show the URL that was probed.
+- If `ign` is on PATH, also run `ign doctor` and report failed checks. `ign doctor` can exit 0 while listing failures.
 
 ### Project Inheritance
 - `parent` is not null and `parent.root` found → pass, show parent name and what's inherited

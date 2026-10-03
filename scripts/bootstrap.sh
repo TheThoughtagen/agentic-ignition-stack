@@ -4,9 +4,14 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
 
-for command in docker curl jq openssl unzip; do
+for command in docker curl jq openssl unzip ign; do
   command -v "$command" >/dev/null 2>&1 || {
-    echo "$command is required." >&2
+    if [[ "$command" == "ign" ]]; then
+      echo "ign is required (https://github.com/TheThoughtagen/ignition-cli)." >&2
+      echo "Install a release binary or: cargo install ignition-cli" >&2
+    else
+      echo "$command is required." >&2
+    fi
     exit 1
   }
 done
@@ -20,10 +25,10 @@ if [[ ! -f .env ]]; then
   cp .env.example .env
   echo "Created .env from .env.example. Replace the local admin password before shared use."
 fi
-set -a
-# shellcheck disable=SC1091
-. ./.env
-set +a
+# shellcheck source=lib/ignition-cli.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/ignition-cli.sh"
+load_ignition_env
+assert_project_matches_git_yaml
 
 ./scripts/bootstrap-api-token.sh
 
@@ -119,4 +124,11 @@ fi
 curl --fail --silent --show-error --max-time 10 \
   --header "X-Ignition-API-Token: $token" \
   "${gateway_url%/}/data/api/v1/gateway-info" >/dev/null
+
+./scripts/wait-for-sample-project.sh
+./scripts/configure-ign-profile.sh
+
 printf 'Gateway ready at %s with generated API-token automation.\n' "$gateway_url"
+printf 'Sample project %s commissioned from GitHub; ign profile %s is active.\n' \
+  "$IGNITION_PROJECT" \
+  "${IGN_PROFILE_NAME:-agentic-ignition}"

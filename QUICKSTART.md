@@ -29,6 +29,7 @@ Install:
 - Node.js LTS (needed for Playwright and Claude Code)
 - Python 3.10+ plus `pip` or `uv` (for `ignition-lint` and `ignition-mcp`)
 - [Claude Code](https://code.claude.com/docs/en/quickstart) or another coding agent
+- [`ign`](https://github.com/TheThoughtagen/ignition-cli) (`cargo install ignition-cli` or a [release binary](https://github.com/TheThoughtagen/ignition-cli/releases))
 - An Ignition **8.3** development licence or trial gateway
 
 Use an isolated local gateway. The API token and WebDev endpoints used by the tools below have powerful access and are not suitable for a shared or production gateway.
@@ -52,11 +53,12 @@ Recommended repository shape:
 ├── .claude-plugin/marketplace.json    # installs this repo as a Claude marketplace
 ├── plugins/ignition/                  # bundled Claude skills, hooks, and scaffolds
 ├── gw-init/git.yaml                   # Git-module sample commissioning map
-├── projects/                          # Git-tracked Ignition project source
-│   └── <project-name>/
-│       ├── ignition/                  # generated Jython test framework lives here
-│       ├── com.inductiveautomation.webdev/  # generated testing/run endpoint
-│       └── e2e/                       # generated Playwright scaffold
+├── projects/                          # Git-module clone of the sample; gitignored
+│   └── example-project/               # created at bootstrap from GitHub, not committed here
+│       ├── ignition/                  # Jython libraries and __tests__
+│       ├── com.inductiveautomation.webdev/  # testing/run endpoint
+│       └── e2e/                       # Playwright scaffold
+├── e2e/                               # stack-owned Git-module Gateway UI test
 ├── gateway/                           # ignored runtime state, except safe bootstrap files
 ├── modules/                           # ignored downloaded .modl release artifacts
 ├── scripts/
@@ -78,13 +80,14 @@ gateway/data/
 gateway/logs/
 gateway/db/
 modules/*.modl
+projects/example-project/
 playwright-report/
 test-results/
 node_modules/
 __pycache__/
 ```
 
-Commit authored project assets, compose/configuration templates, scripts, tests, and documentation. Do not commit generated gateway state.
+Commit authored compose/configuration templates, scripts, tests, plugin files, and documentation. Do not commit generated gateway state or the Git-module clone of the sample project.
 
 ## 2. Bring up the development gateway
 
@@ -92,7 +95,7 @@ The starter pins `inductiveautomation/ignition:8.3.9` in `.env.example`; retain 
 
 1. accept the Ignition EULA only through a local environment variable,
 2. bind-mount `./projects` into the gateway project directory,
-3. mount `./gw-init/git.yaml` so the Git module can commission its sample project,
+3. mount `./gw-init/git.yaml` so the Git module can clone [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) as `example-project`,
 4. keep the rest of the gateway state in an ignored local directory or named Docker volume,
 5. publish the local gateway port only to the development machine, and
 6. use a local-only development administrator password supplied via `.env`.
@@ -106,13 +109,14 @@ docker compose logs -f ignition
 
 Bootstrap creates a random local API token, stores the plaintext only in ignored `secrets/ignition-api-token`, registers its hash as an Ignition 8.3 config resource, and pre-seeds the required local automation permissions. No manual token creation is required.
 
-Verify the gateway before proceeding:
+It then waits for the Git module to clone the sample, registers an `ign` profile that reads `IGNITION_TOKEN` from that secret file, and runs `ign doctor`:
 
 ```bash
+export IGNITION_TOKEN="$(tr -d '\r\n' < secrets/ignition-api-token)"
 ign doctor
 ```
 
-`ign` uses the complete `name:key` API-token value for Ignition 8.3 `/data` routes. Store that value in `.env` or your operating system secret store—never in Git.
+`ign` uses the complete `name:key` API-token value for Ignition 8.3 `/data` routes. Store that value in `.env` or your operating system secret store—never in Git. `ign doctor` can finish with exit code zero while reporting failed checks; read the checks before assuming the connection works.
 
 ## 3. Install the project-update loop
 
@@ -148,7 +152,7 @@ Install the static quality gate:
 
 ```bash
 python -m pip install ignition-lint-toolkit
-ignition-lint --project projects/example-project --profile default
+ign lint projects/example-project --strict -- --profile default
 ```
 
 Install the Claude Code plugin globally:
@@ -159,7 +163,7 @@ claude plugin install ignition@agentic-ignition-stack
 claude plugin details ignition@agentic-ignition-stack
 ```
 
-For repository-local agent instructions and auto-lint hooks, use the plugin's reviewed templates from the root of each Ignition project (the directory containing `project.json`). Commit the generated source after review. The plugin's test scaffolds are project-local: gateway testing resources live in the Ignition project and Playwright lives at `<project>/e2e/`.
+For repository-local agent instructions and auto-lint hooks, use the plugin's reviewed templates from the root of each Ignition project (the directory containing `project.json`). The sample project is the GitHub clone under `projects/example-project/`; commit generated source in that repository after review. The plugin's test scaffolds are project-local: gateway testing resources live in the Ignition project and Playwright lives at `<project>/e2e/`.
 
 For gateway-aware AI work, run `ignition-mcp` locally and point the agent at the loopback MCP server. Example `.mcp.json` shape:
 
@@ -178,25 +182,25 @@ Keep gateway credentials in `ignition-mcp`'s ignored `.env`, not in `.mcp.json`.
 
 ## 5. Add the test scaffolds before features
 
-Generate and commit the test scaffold before building application features:
+Generate and commit the test scaffold in the sample repository before building application features:
 
-1. Run the plugin's `init-testing` command in the repository root.
+1. Run the plugin's `init-testing` command from `projects/example-project/` after bootstrap has cloned it.
 2. The gateway scaffold creates the Jython framework, test WebDev endpoints, and type stubs in the Ignition project. Configure it for the **local development gateway** and dedicated test data.
 3. Configure Playwright with `baseURL` set to the local Perspective URL and test credentials supplied only at runtime.
 4. Add one gateway smoke test and one browser test that proves a Perspective page loads.
 5. Make `scripts/test.sh` run checks in this order:
 
 ```text
-ignition-lint → project scan → gateway tests → Playwright
+ign lint → project scan → ign testing run → Playwright
 ```
 
-The gateway test layer catches behavior that static analysis cannot. Playwright catches Perspective/UI behavior that neither script tests nor the gateway API can see. Do not let an agent skip either layer when it changes related code.
+`ign testing run --project $IGNITION_PROJECT` is the gateway-test interface; it wraps `POST /system/webdev/<project>/testing/run`. Playwright still runs as `npx playwright test` from the sample's `e2e/` directory (`ign` has no `e2e run` verb). Do not let an agent skip either layer when it changes related code.
 
 ## 6. Work in small, verifiable loops
 
 A good agent request names the outcome, affected project area, constraints, and checks. For example:
 
-> Add a Perspective view that shows the current mixer state. Reuse existing project conventions, do not change tags outside `Example/Dev`, run `ignition-lint`, rescan the project, run the gateway smoke test and the Playwright smoke test, then show the diff. Do not commit.
+> Add a Perspective view that shows the current mixer state. Reuse existing project conventions, do not change tags outside `Example/Dev`, run `ign lint`, rescan the project, run `ign testing run` and the Playwright smoke test, then show the diff. Do not commit.
 
 Each loop is:
 
@@ -212,31 +216,27 @@ git switch -c feature/mixer-status
 git status
 git diff
 
-# 5. Commit only the reviewed project/test/configuration files
-git add projects tests scripts
-git commit -m "Add mixer status view"
-git push -u origin feature/mixer-status
+# 5. Commit reviewed application changes in the sample clone
+#    (projects/example-project is its own Git repo) and stack changes here.
 ```
 
 Use pull requests and require the lint and test workflow to pass before merging. Treat the Git repository—not a running gateway—as the source of truth.
 
 ## Git inside the Designer
 
-By default `./scripts/bootstrap.sh` downloads the latest [Ignition Git Module](https://github.com/WhiskeyHouse/ignition-git-module) release `.modl` from [`https://github.com/WhiskeyHouse/ignition-git-module/releases/latest`](https://github.com/WhiskeyHouse/ignition-git-module/releases/latest) (the same GitHub Releases path used for other modules). You do not need a local `.modl`. To pin a tag, set `GIT_MODULE_VERSION`. To use a local build instead, set `GIT_MODULE_SOURCE` to an existing `.modl` path. Compose mounts [`gw-init/git.yaml`](gw-init/git.yaml), which maps the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) `main` branch to the Ignition project `git-example-project`. On first module startup, it clones into the bind-mounted `projects/` directory; that runtime clone is ignored by this orchestration repository because it has its own Git history.
+By default `./scripts/bootstrap.sh` downloads the latest [Ignition Git Module](https://github.com/WhiskeyHouse/ignition-git-module) release `.modl` from [`https://github.com/WhiskeyHouse/ignition-git-module/releases/latest`](https://github.com/WhiskeyHouse/ignition-git-module/releases/latest) (the same GitHub Releases path used for other modules). You do not need a local `.modl`. To pin a tag, set `GIT_MODULE_VERSION`. To use a local build instead, set `GIT_MODULE_SOURCE` to an existing `.modl` path. Compose mounts [`gw-init/git.yaml`](gw-init/git.yaml), which maps the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) `main` branch to the Ignition project `example-project`. On first module startup, it clones into the bind-mounted `projects/` directory; that runtime clone is ignored by this orchestration repository because it has its own Git history.
 
-To configure another project, copy the YAML entry and change its repository URI, branch, project name, and user fields. `ignition_userName` must match the Designer/Gateway account that will perform Git operations. Never put a real password or token in `git.yaml`; use the module's runtime secret mechanism for private remotes.
+To configure another project, copy the YAML entry and change its repository URI, branch, project name, and user fields. `IGNITION_PROJECT` in `.env` must match `ignition_projectName`. `ignition_userName` must match the Designer/Gateway account that will perform Git operations. Never put a real password or token in `git.yaml`; use the module's runtime secret mechanism for private remotes.
 
-Use the module only on a disposable local gateway until your team has documented who may commit, pull, switch branches, and resolve conflicts from Designer. Do not let the embedded `projects/example-project/` copy and the commissioned `projects/git-example-project/` clone act as competing sources for the same Ignition project name.
+Use the module only on a disposable local gateway until your team has documented who may commit, pull, switch branches, and resolve conflicts from Designer.
 
 Verify the authenticated Gateway page and backing route with Playwright:
 
 ```bash
-cd projects/example-project/e2e
-npm install
 IGNITION_URL=http://127.0.0.1:8088 \
   IGNITION_USER="$GATEWAY_ADMIN_USERNAME" \
   IGNITION_PASSWORD="$GATEWAY_ADMIN_PASSWORD" \
-  npm run test:git-module
+  ./scripts/run-git-module-ui-test.sh
 ```
 
 ## Publish checklist

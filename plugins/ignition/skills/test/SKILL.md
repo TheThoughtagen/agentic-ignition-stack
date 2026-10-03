@@ -61,7 +61,15 @@ Run tests for the current Ignition project. Routes to gateway tests (Jython) or 
 
 6. Wait 3-5 seconds for scan propagation.
 
-7. Run the tests:
+7. Run the tests through `ign` when it is available (this stack's documented path):
+   ```bash
+   ign testing run --project <project>
+   ign testing run --project <project> --module <module>
+   ign testing run --project <project> --package <package>
+   ```
+   `ign testing run` wraps `POST /system/webdev/<project>/testing/run`. A green suite exits 0; a red suite prints the full report and exits 6.
+
+   If `ign` is not on PATH, call the WebDev route directly:
    ```bash
    # All tests
    curl -k -s -X POST "<gateway>/system/webdev/<project>/testing/run"

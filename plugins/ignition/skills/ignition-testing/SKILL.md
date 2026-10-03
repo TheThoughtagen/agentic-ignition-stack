@@ -189,6 +189,14 @@ print testing.runner.run_module("core.mes.changeover.__tests__")
 print testing.reporter.to_console(testing.runner.run_all())
 ```
 
+**Via `ign` (preferred when ignition-cli is installed):**
+```bash
+ign testing run --project <PROJECT>
+ign testing run --project <PROJECT> --discover
+ign testing run --project <PROJECT> --module core.mes.changeover.__tests__
+ign testing run --project <PROJECT> --package core.mes
+```
+
 **Via HTTP (WebDev endpoints):**
 ```bash
 # Discover modules

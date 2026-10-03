@@ -11,11 +11,14 @@ If `$ARGUMENTS` specifies a file or directory, lint that target. If it specifies
 
 ## Steps
 
-1. Check that `ignition-lint` is installed. If not, tell the user to run `pip install ignition-lint-toolkit`.
+1. Check that `ignition-lint` is installed. If not, tell the user to run `pip install ignition-lint-toolkit`. Prefer `ign lint` when `ign` is on PATH.
 2. Determine the target and profile from `$ARGUMENTS`.
 3. Run the linter via Bash:
 
 ```bash
+# Whole project through ign (preferred when ignition-cli is installed)
+ign lint --strict -- --project . --profile default
+
 # Whole project
 ignition-lint --project . --profile default
 
