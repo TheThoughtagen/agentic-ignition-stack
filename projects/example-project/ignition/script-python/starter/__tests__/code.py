@@ -1,4 +1,4 @@
-from starter import format_batch_status
+from starter.status import format_batch_status
 from testing.assertions import assert_equal
 from testing.decorators import test
 

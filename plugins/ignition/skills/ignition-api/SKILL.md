@@ -10,15 +10,17 @@ You are writing code for **Ignition** by Inductive Automation. Scripts run in **
 
 ## CRITICAL: resource.json Required for EVERY Ignition Resource
 
-**Every file or directory you create inside an Ignition project MUST have a `resource.json`.** Without it, the gateway silently ignores the resource — no error, no warning, it simply doesn't exist at runtime. This is the #1 cause of "not found" errors when managing Ignition projects via git.
+**Every file or directory you create inside an Ignition project MUST have a `resource.json`, except package-only folders under `ignition/script-python/`.** Without it, the gateway silently ignores the resource — no error, no warning, it simply doesn't exist at runtime. This is the #1 cause of "not found" errors when managing Ignition projects via git.
+
+On Ignition 8.3, a `resource.json` on a script-library folder that also has child scripts makes that folder a leaf `ProjectScriptModule`. Nested modules then fail to initialize. Leave package-only directories without `resource.json` and without `code.py`.
 
 This applies to ALL resource types:
 
 | Resource type | Where | resource.json goes |
 |---------------|-------|--------------------|
-| **Script modules** | `ignition/script-python/my_package/` | Next to `code.py` in every directory in the path |
-| **Script sub-packages** | `ignition/script-python/my_package/sub/` | In `sub/` too — every level needs one |
-| **Test modules** | `ignition/script-python/pkg/__tests__/` | In both `pkg/` AND `__tests__/` |
+| **Script modules** | `ignition/script-python/my_package/` | Next to `code.py` on leaf modules |
+| **Script sub-packages** | `ignition/script-python/my_package/sub/` | Next to `code.py` on **leaf** folders only; package-only parents must not have `resource.json` |
+| **Test modules** | `ignition/script-python/pkg/__tests__/` | Next to `code.py` in `__tests__/` (not on the parent package folder) |
 | **Perspective views** | `com.inductiveautomation.perspective/views/MyView/` | Next to `view.json` |
 | **Named queries** | `com.inductiveautomation.naming/queries/MyQuery/` | Next to `query.json` |
 | **Vision windows** | `com.inductiveautomation.vision/windows/MyWindow/` | Next to `window.json` |
@@ -124,65 +126,48 @@ core/util/secrets/
 └── resource.json
 ```
 
-**Package node** — has child directories, NO `code.py` (or only an empty placeholder):
+**Package node** — has child directories and is **not** itself a python-script resource. On Ignition 8.3 do **not** put `resource.json` (even with `"files": []`) on a package-only directory. That still creates a leaf `ProjectScriptModule`, and installing children then fails with `TypeError: ProjectScriptModule object does not support item assignment`.
 ```text
-core/util/
-├── secrets/         ← child module
+core/util/                 ← no resource.json, no code.py
+├── secrets/               ← child module
 │   ├── code.py
 │   └── resource.json
-├── csv/             ← child module
-│   ├── code.py
-│   └── resource.json
-└── resource.json    ← resource.json still required, but NO code.py
+└── csv/                   ← child module
+    ├── code.py
+    └── resource.json
 ```
 
-**NEVER put a `code.py` in a directory that also contains child packages.** Ignition treats a directory with `code.py` as a leaf module. If you also put subdirectories in it, the behavior is undefined and the child modules may not be importable.
+**NEVER put a `code.py` or a python-script `resource.json` in a directory that also contains child script resources.** Ignition treats that directory as a leaf module. `ScriptManager.addScriptModule` then tries `parent[child] = module`, which leaf modules reject.
 
-**Exception:** `__tests__/` directories are special — Ignition's script runtime ignores directories whose names start with `__`, so they do not conflict with a sibling `code.py`. The testing framework relies on this convention.
+`__tests__/` directories are **not** ignored on Ignition 8.3. They are real nested script modules. They must hang off a package node, not a leaf that already has `code.py`.
 
 ```text
 WRONG:
 my_package/
-├── code.py          ← has real code
+├── code.py          ← leaf script
 ├── resource.json
-└── utils/           ← real child package — conflicts with code.py above
+└── __tests__/       ← 8.3 tries to install this onto the leaf → TypeError
     ├── code.py
     └── resource.json
 
-OK (special case):
-my_package/
-├── code.py          ← has real code
-├── resource.json
-└── __tests__/       ← ignored by Ignition runtime, used by test framework
+WRONG:
+testing/
+├── resource.json    ← empty files:[] is still a leaf script on 8.3
+├── runner/
+│   ├── code.py
+│   └── resource.json
+└── assertions/
     ├── code.py
     └── resource.json
 
-CORRECT (general pattern):
-my_package/
-├── resource.json    ← package node, no code.py
+CORRECT:
+my_package/          ← package node: no resource.json, no code.py
 ├── logic/
-│   ├── code.py      ← real code lives in a leaf
+│   ├── code.py
 │   └── resource.json
 └── __tests__/
-    ├── code.py      ← tests live in a leaf
+    ├── code.py
     └── resource.json
-```
-
-When `resource.json` exists without `code.py`, Ignition recognizes the directory as a package node. The `files` array in `resource.json` should be empty or omit `code.py`:
-```json
-{
-  "scope": "A",
-  "version": 1,
-  "restricted": false,
-  "overridable": true,
-  "files": [],
-  "attributes": {
-    "lastModification": {
-      "actor": "external",
-      "timestamp": "2026-01-01T00:00:00Z"
-    }
-  }
-}
 ```
 
 ## Linting

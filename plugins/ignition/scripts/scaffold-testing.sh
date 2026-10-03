@@ -74,24 +74,6 @@ RESOURCE_JSON=$(cat <<'RJEOF'
 RJEOF
 )
 
-# Package node resource.json (no code.py — this is a namespace package)
-PACKAGE_RESOURCE_JSON=$(cat <<'PRJEOF'
-{
-  "scope": "A",
-  "version": 1,
-  "restricted": false,
-  "overridable": true,
-  "files": [],
-  "attributes": {
-    "lastModification": {
-      "actor": "external",
-      "timestamp": "2026-02-20T00:00:00Z"
-    }
-  }
-}
-PRJEOF
-)
-
 # ---------------------------------------------------------------------------
 # Shared WebDev config.json
 # ---------------------------------------------------------------------------
@@ -256,8 +238,9 @@ if [[ "$SKIP_SCRIPTS" = true ]]; then
 else
 echo "--- Jython Test Framework ---"
 
-# Package node for testing/ (required by Ignition — without it, child modules are invisible)
-write_file "ignition/script-python/testing/resource.json" "$PACKAGE_RESOURCE_JSON"
+# Do not write ignition/script-python/testing/resource.json. On Ignition 8.3 a
+# python-script resource at a package path is a leaf ProjectScriptModule, and
+# installing children then raises TypeError: does not support item assignment.
 
 # --- runner/code.py (genericized) ---
 

@@ -1,9 +1,9 @@
 {
-  "scope": "A",
-  "version": 2,
+  "scope": "G",
+  "version": 1,
   "restricted": false,
   "overridable": true,
-  "files": ["code.py"],
+  "files": ["props.json"],
   "attributes": {
     "lastModification": {
       "actor": "external",

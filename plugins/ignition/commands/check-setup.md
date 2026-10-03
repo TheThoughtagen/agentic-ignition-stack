@@ -63,12 +63,14 @@ Run a full health check on the current Ignition project and report what's workin
 - False → info, IDE completions for testing.* won't work. Suggest: `/init-testing`
 
 ### Ignition Resource Structure
-- Check for any directories in `ignition/script-python/` that are missing `resource.json` — these won't be loaded by the gateway.
+- Check for leaf script directories in `ignition/script-python/` that have `code.py` but no `resource.json` — those won't be loaded by the gateway. Package-only folders (no `code.py`) must **not** have `resource.json` on Ignition 8.3.
   ```bash
-  find <project_root>/ignition/script-python -type d -exec test ! -f '{}/resource.json' \; -print
+  find <project_root>/ignition/script-python -name code.py -printf '%h\n' | while read -r dir; do
+    [ -f "$dir/resource.json" ] || echo "missing resource.json: $dir"
+  done
   ```
-  - None found → pass
-  - Found some → warn, list them. Explain that every directory needs resource.json.
+  - None missing → pass
+  - Found some → warn, list them. Explain that every leaf with `code.py` needs resource.json, and package-only parents must not have one.
 
 3. Present results as a table with status icons:
    - PASS = working correctly

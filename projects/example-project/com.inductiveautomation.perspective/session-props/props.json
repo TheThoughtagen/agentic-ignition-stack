@@ -1,0 +1,11 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {
+    "device": {},
+    "locale": "en-US",
+    "theme": "light",
+    "timeZoneId": "UTC"
+  }
+}

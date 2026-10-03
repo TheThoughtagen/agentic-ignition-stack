@@ -1,0 +1,53 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 480,
+      "width": 800
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": { "name": "Title" },
+        "position": { "height": 48, "width": 640, "x": 32, "y": 32 },
+        "props": {
+          "text": "Agentic Ignition example",
+          "style": { "fontSize": "28px", "fontWeight": "bold" }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": { "name": "Subtitle" },
+        "position": { "height": 32, "width": 640, "x": 32, "y": 88 },
+        "props": {
+          "text": "Sample Perspective home view for Playwright smoke tests.",
+          "style": { "fontSize": "16px" }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": { "name": "Status" },
+        "position": { "height": 32, "width": 640, "x": 32, "y": 136 },
+        "props": {
+          "text": "Gateway session is live.",
+          "style": { "fontSize": "16px" }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": { "name": "Hint" },
+        "position": { "height": 32, "width": 640, "x": 32, "y": 184 },
+        "props": {
+          "text": "This page exists so /data/perspective/client/example-project has a configured view.",
+          "style": { "fontSize": "14px" }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": { "name": "root" },
+    "props": { "mode": "percent" },
+    "type": "ia.container.coord"
+  }
+}
