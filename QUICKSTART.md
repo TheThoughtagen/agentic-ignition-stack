@@ -16,7 +16,7 @@ Run an Ignition 8.3 development gateway locally, keep the project in Git, and gi
 | Static quality gate | [`ignition-lint`](https://github.com/TheThoughtagen/ignition-lint) | Validates Jython, Perspective, bindings, tags, and project conventions before runtime |
 | Gateway tests | Plugin-generated gateway test scaffold | Exercises scripts against the running development gateway |
 | Browser tests | Plugin-generated Playwright scaffold | Validates Perspective behavior in Chromium against the running gateway |
-| Optional Designer Git UX | [`ignition-git-module`](https://github.com/TheThoughtagen/ignition-git-module) | Lets Designer users work with the same repository without changing the default workflow |
+| Designer Git UX | [`ignition-git-module`](https://github.com/WhiskeyHouse/ignition-git-module) | Bootstrap downloads the latest GitHub Release `.modl` so Designer users can work with the same repository |
 
 The public repository should **reference or download released modules**; it should not commit `.modl` binaries, gateway backups, gateway databases, licences, API tokens, or `.env` files.
 
@@ -222,7 +222,7 @@ Use pull requests and require the lint and test workflow to pass before merging.
 
 ## Git inside the Designer
 
-When `GIT_MODULE_SOURCE` resolves to a local module artifact, bootstrap installs the [Ignition Git Module](https://github.com/TheThoughtagen/ignition-git-module). Build the current module source with `mvn clean package -DskipTests` and point `GIT_MODULE_SOURCE` at `git-build/target/Git-unsigned.modl`; older local artifacts may predate the Ignition 8.3 Gateway-route fix. Compose mounts [`gw-init/git.yaml`](gw-init/git.yaml), which maps the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) `main` branch to the Ignition project `git-example-project`. On first module startup, it clones into the bind-mounted `projects/` directory; that runtime clone is ignored by this orchestration repository because it has its own Git history.
+By default `./scripts/bootstrap.sh` downloads the latest [Ignition Git Module](https://github.com/WhiskeyHouse/ignition-git-module) release `.modl` from [`https://github.com/WhiskeyHouse/ignition-git-module/releases/latest`](https://github.com/WhiskeyHouse/ignition-git-module/releases/latest) (the same GitHub Releases path used for other modules). You do not need a local `.modl`. To pin a tag, set `GIT_MODULE_VERSION`. To use a local build instead, set `GIT_MODULE_SOURCE` to an existing `.modl` path. Compose mounts [`gw-init/git.yaml`](gw-init/git.yaml), which maps the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) `main` branch to the Ignition project `git-example-project`. On first module startup, it clones into the bind-mounted `projects/` directory; that runtime clone is ignored by this orchestration repository because it has its own Git history.
 
 To configure another project, copy the YAML entry and change its repository URI, branch, project name, and user fields. `ignition_userName` must match the Designer/Gateway account that will perform Git operations. Never put a real password or token in `git.yaml`; use the module's runtime secret mechanism for private remotes.
 

@@ -34,10 +34,26 @@ if [[ "${AUTO_INSTALL_MODULES:-true}" == "true" ]]; then
     ./scripts/download-project-scan-module.sh
   fi
 
-  git_source="${GIT_MODULE_SOURCE:-$HOME/whiskeyhouse/ignition-git-module/git-build/target/Git-unsigned.modl}"
-  git_source="${git_source/#\~/$HOME}"
-  if [[ -f "$git_source" ]]; then
-    ./scripts/stage-git-module.sh "$git_source"
+  git_modl_staged=false
+  shopt -s nullglob
+  for _existing_git_modl in modules/Git*.modl modules/git*.modl; do
+    git_modl_staged=true
+    break
+  done
+  shopt -u nullglob
+
+  if [[ -n "${GIT_MODULE_SOURCE:-}" ]]; then
+    git_source="${GIT_MODULE_SOURCE/#\~/$HOME}"
+    if [[ -f "$git_source" ]]; then
+      ./scripts/stage-git-module.sh "$git_source"
+      git_modl_staged=true
+    elif [[ "$git_modl_staged" != "true" ]]; then
+      echo "GIT_MODULE_SOURCE is set but not found at ${git_source}; downloading the latest Git module release." >&2
+    fi
+  fi
+
+  if [[ "$git_modl_staged" != "true" ]]; then
+    ./scripts/download-git-module.sh
   fi
 fi
 
