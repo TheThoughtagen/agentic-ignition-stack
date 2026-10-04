@@ -4,6 +4,24 @@ import * as path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+const gatewayUrl =
+  process.env.IGNITION_URL ||
+  process.env.IGNITION_GATEWAY_URL ||
+  "http://127.0.0.1:8088";
+
+function isLoopbackGateway(rawUrl: string): boolean {
+  try {
+    const { hostname } = new URL(rawUrl);
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1"
+    );
+  } catch {
+    return false;
+  }
+}
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,
@@ -13,11 +31,8 @@ export default defineConfig({
   reporter: [["list"]],
   timeout: 60_000,
   use: {
-    baseURL:
-      process.env.IGNITION_URL ||
-      process.env.IGNITION_GATEWAY_URL ||
-      "http://127.0.0.1:8088",
-    ignoreHTTPSErrors: true,
+    baseURL: gatewayUrl,
+    ignoreHTTPSErrors: isLoopbackGateway(gatewayUrl),
     actionTimeout: 15_000,
     trace: "on-first-retry",
     screenshot: "only-on-failure",

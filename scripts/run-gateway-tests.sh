@@ -9,6 +9,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib/ignition-cli.sh"
 
 load_ignition_env
 require_ign
+assert_project_matches_git_yaml
 : "${IGNITION_PROJECT:?Set IGNITION_PROJECT to the commissioned sample project name}"
 : "${IGNITION_TOKEN:?Run ./scripts/bootstrap.sh first so ign can authenticate.}"
 

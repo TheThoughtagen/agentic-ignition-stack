@@ -30,6 +30,23 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib/ignition-cli.sh"
 load_ignition_env
 assert_project_matches_git_yaml
 
+git_modl_matches_requested_version() {
+  local file="$1"
+  local ver base
+  [[ -n "${GIT_MODULE_VERSION:-}" ]] || return 0
+  ver="${GIT_MODULE_VERSION#v}"
+  base="$(basename "$file")"
+  [[ "$base" == *"$ver"* ]]
+}
+
+is_git_modl() {
+  local base
+  base="$(basename "$1")"
+  [[ "$base" == Git*.modl || "$base" == git*.modl ]]
+}
+
+git_override_basename=""
+
 ./scripts/bootstrap-api-token.sh
 
 if [[ "${AUTO_INSTALL_MODULES:-true}" == "true" ]]; then
@@ -40,10 +57,13 @@ if [[ "${AUTO_INSTALL_MODULES:-true}" == "true" ]]; then
   fi
 
   git_modl_staged=false
+  git_override_basename=""
   shopt -s nullglob
   for _existing_git_modl in modules/Git*.modl modules/git*.modl; do
-    git_modl_staged=true
-    break
+    if git_modl_matches_requested_version "$_existing_git_modl"; then
+      git_modl_staged=true
+      break
+    fi
   done
   shopt -u nullglob
 
@@ -52,6 +72,7 @@ if [[ "${AUTO_INSTALL_MODULES:-true}" == "true" ]]; then
     if [[ -f "$git_source" ]]; then
       ./scripts/stage-git-module.sh "$git_source"
       git_modl_staged=true
+      git_override_basename="$(basename "$git_source")"
     elif [[ "$git_modl_staged" != "true" ]]; then
       echo "GIT_MODULE_SOURCE is set but not found at ${git_source}; downloading the latest Git module release." >&2
     fi
@@ -99,6 +120,14 @@ if [[ "${AUTO_INSTALL_MODULES:-true}" == "true" ]]; then
     "${gateway_url%/}/data/api/v1/modules/healthy")"
   for module in modules/*.modl; do
     [[ -e "$module" ]] || continue
+    if [[ -n "${GIT_MODULE_VERSION:-}" ]] && is_git_modl "$module"; then
+      if ! git_modl_matches_requested_version "$module" && \
+        [[ "$(basename "$module")" != "$git_override_basename" ]]; then
+        printf 'Skipping %s (does not match GIT_MODULE_VERSION=%s).\n' \
+          "$(basename "$module")" "$GIT_MODULE_VERSION"
+        continue
+      fi
+    fi
     module_id="$(unzip -p "$module" module.xml | tr -d '\r\n' | grep -o '<id>[^<]*</id>' | head -1 | sed -e 's#<id>##' -e 's#</id>##')"
     if [[ "${FORCE_MODULE_INSTALL:-false}" != "true" ]] && \
       printf '%s' "$healthy" | jq -e --arg id "$module_id" \

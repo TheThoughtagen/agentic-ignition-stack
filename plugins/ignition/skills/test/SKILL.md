@@ -81,7 +81,9 @@ Run tests for the current Ignition project. Routes to gateway tests (Jython) or 
    curl -k -s -X POST "<gateway>/system/webdev/<project>/testing/run?package=<package>"
    ```
 
-8. Parse the JSON response and present results:
+8. Parse results and present them:
+   - If you used `ign testing run`, read the CLI success envelope. Counts and the suite live under `data` (`data.results`, `data.passed`, `data.failed`, `data.errors`, `data.verdict`). A red suite still prints this envelope and exits **6** — treat that as a failed report, not a missing one.
+   - If you used curl, parse the WebDev JSON body (`passed`, `failed`, `errors`, `total`, `duration_ms`).
    - Summary: total, passed, failed, skipped, errors, duration
    - On failure: show each failure with test name, error message, and traceback
    - On success: report concisely

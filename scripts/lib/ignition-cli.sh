@@ -25,24 +25,19 @@ require_ign() {
   }
 }
 
-commissioned_project_name() {
-  awk '
-    $1 == "ignition_projectName:" {
-      print $2
-      exit
-    }
-  ' gw-init/git.yaml
+commissioned_project_names() {
+  awk '$1 == "ignition_projectName:" { print $2 }' gw-init/git.yaml
 }
 
 assert_project_matches_git_yaml() {
-  local yaml_name
-  yaml_name="$(commissioned_project_name)"
-  if [[ -z "$yaml_name" ]]; then
+  local names
+  names="$(commissioned_project_names)"
+  if [[ -z "$names" ]]; then
     echo "gw-init/git.yaml is missing ignition_projectName." >&2
     exit 1
   fi
-  if [[ "$yaml_name" != "$IGNITION_PROJECT" ]]; then
-    echo "IGNITION_PROJECT (${IGNITION_PROJECT}) must match gw-init/git.yaml ignition_projectName (${yaml_name})." >&2
+  if ! printf '%s\n' "$names" | grep -Fxq -- "$IGNITION_PROJECT"; then
+    echo "IGNITION_PROJECT (${IGNITION_PROJECT}) must match a gw-init/git.yaml ignition_projectName ($(printf '%s' "$names" | tr '\n' ' '))." >&2
     exit 1
   fi
 }

@@ -69,8 +69,13 @@ Run a full health check on the current Ignition project and report what's workin
   find <project_root>/ignition/script-python -name code.py -printf '%h\n' | while read -r dir; do
     [ -f "$dir/resource.json" ] || echo "missing resource.json: $dir"
   done
+  find <project_root>/ignition/script-python -name resource.json -printf '%h\n' | while read -r dir; do
+    [ -f "$dir/code.py" ] && continue
+    find "$dir" -mindepth 2 -name code.py | grep -q . || continue
+    echo "package-only resource.json: $dir"
+  done
   ```
-  - None missing → pass
+  - None missing and no package-only `resource.json` → pass
   - Found some → warn, list them. Explain that every leaf with `code.py` needs resource.json, and package-only parents must not have one.
 
 3. Present results as a table with status icons:

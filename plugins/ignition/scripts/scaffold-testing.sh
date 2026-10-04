@@ -229,6 +229,32 @@ echo "  Gateway URL:   $GATEWAY_URL"
 echo "  Tag provider:  $TAG_PROVIDER"
 echo ""
 
+# Older scaffolds wrote a package-level testing/resource.json with files: [].
+# On Ignition 8.3 that is a leaf, so testing.runner and siblings fail to load.
+# Remove that marker when this project has no testing/code.py (not a customized leaf).
+remove_obsolete_testing_package_resource() {
+  local relpath="ignition/script-python/testing/resource.json"
+  local path="$PROJECT_ROOT/$relpath"
+  [[ -f "$path" ]] || return 0
+  [[ -f "$PROJECT_ROOT/ignition/script-python/testing/code.py" ]] && return 0
+
+  local is_scaffold_marker=false
+  if command -v python3 >/dev/null 2>&1; then
+    python3 -c 'import json,sys; data=json.load(open(sys.argv[1])); sys.exit(0 if data.get("files")==[] else 1)' "$path" 2>/dev/null && is_scaffold_marker=true
+  elif grep -Eq '"files"[[:space:]]*:[[:space:]]*\[\]' "$path"; then
+    is_scaffold_marker=true
+  fi
+  [[ "$is_scaffold_marker" == true ]] || return 0
+
+  if [[ "$DRY_RUN" = true ]]; then
+    echo "  Would remove obsolete package resource: $relpath"
+    return 0
+  fi
+  rm -f "$path"
+  echo "  Removed obsolete package resource: $relpath"
+}
+remove_obsolete_testing_package_resource
+
 # ===================================================================
 # 1. Jython Test Framework — ignition/script-python/testing/
 # ===================================================================

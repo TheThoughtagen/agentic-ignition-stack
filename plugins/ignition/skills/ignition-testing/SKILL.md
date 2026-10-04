@@ -268,7 +268,7 @@ ignition/script-python/my_package/     # package node — no resource.json, no c
     └── resource.json                  # REQUIRED
 ```
 
-**If a test module import fails with `No module named ...`**, check `resource.json` exists in every directory in the module path first. This is the #1 cause of test discovery failures.
+**If a test module import fails with `No module named ...`**, check `resource.json` exists next to each leaf `code.py` on the module path. Do not add `resource.json` to package-only parent directories — that recreates the 8.3 load failure. This is the #1 cause of test discovery failures.
 
 ## Project Inheritance
 

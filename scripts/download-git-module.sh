@@ -49,6 +49,12 @@ fi
 
 mkdir -p modules
 destination="modules/${asset_name}"
-curl --fail --location --silent --show-error "${curl_auth[@]}" --output "$destination" "$asset_url"
+partial="${destination}.part"
+rm -f "$partial"
+if ! curl --fail --location --silent --show-error "${curl_auth[@]}" --output "$partial" "$asset_url"; then
+  rm -f "$partial"
+  exit 1
+fi
+mv -f "$partial" "$destination"
 printf 'Downloaded %s (%s) from https://github.com/%s/releases/tag/%s\n' \
   "$destination" "$asset_name" "$repo" "$tag"
