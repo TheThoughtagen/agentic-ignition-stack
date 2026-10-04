@@ -1,7 +1,0 @@
-{
-  "title": "Agentic Ignition Example",
-  "description": "Minimal project for the Agentic Ignition Stack quickstart.",
-  "enabled": true,
-  "inheritable": false,
-  "parent": ""
-}

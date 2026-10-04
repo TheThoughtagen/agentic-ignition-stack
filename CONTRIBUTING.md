@@ -6,7 +6,7 @@
 - Keep all secrets and generated gateway state out of Git.
 - Pin and document any new runtime dependency.
 - Add or update gateway and/or Playwright tests for behavior changes.
-- Run `./scripts/test.sh` against a local development gateway before opening a pull request.
+- Run `./scripts/test.sh` against a local development gateway before opening a pull request. That script uses `ign lint` and `ign testing run` against the Git-commissioned sample.
 
 ## Pull requests
 

@@ -1,6 +1,6 @@
 - repo_uri: https://github.com/TheThoughtagen/agentic-ignition-example-project.git
   repo_branch: main
-  ignition_projectName: git-example-project
+  ignition_projectName: example-project
   ignition_userName: admin
   ignition_inheritable: false
   ignition_parentName: null

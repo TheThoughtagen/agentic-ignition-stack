@@ -8,7 +8,10 @@ gateway/db/
 gateway/config/
 secrets/
 projects/.resources/
-# Runtime clone commissioned from gw-init/git.yaml; source lives in its own repository.
+# Runtime clone of agentic-ignition-example-project commissioned from gw-init/git.yaml.
+# Source of truth is that GitHub repository, not this orchestration repo.
+projects/example-project/
+# Previous commissioning name; keep ignored so leftover local clones stay untracked.
 projects/git-example-project/
 modules/*.modl
 

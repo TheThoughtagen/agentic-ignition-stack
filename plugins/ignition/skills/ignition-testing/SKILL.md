@@ -189,6 +189,14 @@ print testing.runner.run_module("core.mes.changeover.__tests__")
 print testing.reporter.to_console(testing.runner.run_all())
 ```
 
+**Via `ign` (preferred when ignition-cli is installed):**
+```bash
+ign testing run --project <PROJECT>
+ign testing run --project <PROJECT> --discover
+ign testing run --project <PROJECT> --module core.mes.changeover.__tests__
+ign testing run --project <PROJECT> --package core.mes
+```
+
 **Via HTTP (WebDev endpoints):**
 ```bash
 # Discover modules
@@ -246,20 +254,21 @@ ignition/script-python/core/mes/changeover/__tests__/code.py
 
 ## CRITICAL: resource.json Required for Test Modules
 
-**Every directory** in `ignition/script-python/` MUST have a `resource.json` alongside `code.py` — see the full `resource.json` reference in the `ignition-api` skill. Without it, Ignition silently ignores the module and imports fail with `No module named ...`.
+**Every leaf** in `ignition/script-python/` MUST have a `resource.json` alongside `code.py` — see the full `resource.json` reference in the `ignition-api` skill. Without it, Ignition silently ignores the module and imports fail with `No module named ...`.
 
-When creating a new test module, create `resource.json` for BOTH the package AND `__tests__`:
+On Ignition 8.3, `__tests__/` is a real nested script module, not an ignored directory. Do not put `code.py` or `resource.json` on the parent package folder. Create `resource.json` next to each leaf `code.py` only:
 
 ```text
-ignition/script-python/my_package/
-├── code.py           # Package code
-├── resource.json     # ← REQUIRED — use scope "A" template
+ignition/script-python/my_package/     # package node — no resource.json, no code.py
+├── logic/
+│   ├── code.py                        # Package code lives in a leaf
+│   └── resource.json                  # REQUIRED
 └── __tests__/
-    ├── code.py       # Test code
-    └── resource.json # ← REQUIRED — use scope "A" template
+    ├── code.py                        # Test code
+    └── resource.json                  # REQUIRED
 ```
 
-**If a test module import fails with `No module named ...`**, check `resource.json` exists in every directory in the module path first. This is the #1 cause of test discovery failures.
+**If a test module import fails with `No module named ...`**, check `resource.json` exists next to each leaf `code.py` on the module path. Do not add `resource.json` to package-only parent directories — that recreates the 8.3 load failure. This is the #1 cause of test discovery failures.
 
 ## Project Inheritance
 

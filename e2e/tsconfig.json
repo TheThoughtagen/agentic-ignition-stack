@@ -8,12 +8,7 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "rootDir": ".",
-    "baseUrl": ".",
-    "paths": {
-      "@pages/*": ["pages/*"],
-      "@components/*": ["components/*"],
-      "@fixtures/*": ["fixtures/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist"]
