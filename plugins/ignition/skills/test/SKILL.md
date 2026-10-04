@@ -61,7 +61,15 @@ Run tests for the current Ignition project. Routes to gateway tests (Jython) or 
 
 6. Wait 3-5 seconds for scan propagation.
 
-7. Run the tests:
+7. Run the tests through `ign` when it is available (this stack's documented path):
+   ```bash
+   ign testing run --project <project>
+   ign testing run --project <project> --module <module>
+   ign testing run --project <project> --package <package>
+   ```
+   `ign testing run` wraps `POST /system/webdev/<project>/testing/run`. A green suite exits 0; a red suite prints the full report and exits 6.
+
+   If `ign` is not on PATH, call the WebDev route directly:
    ```bash
    # All tests
    curl -k -s -X POST "<gateway>/system/webdev/<project>/testing/run"
@@ -73,7 +81,9 @@ Run tests for the current Ignition project. Routes to gateway tests (Jython) or 
    curl -k -s -X POST "<gateway>/system/webdev/<project>/testing/run?package=<package>"
    ```
 
-8. Parse the JSON response and present results:
+8. Parse results and present them:
+   - If you used `ign testing run`, read the CLI success envelope. Counts and the suite live under `data` (`data.results`, `data.passed`, `data.failed`, `data.errors`, `data.verdict`). A red suite still prints this envelope and exits **6** — treat that as a failed report, not a missing one.
+   - If you used curl, parse the WebDev JSON body (`passed`, `failed`, `errors`, `total`, `duration_ms`).
    - Summary: total, passed, failed, skipped, errors, duration
    - On failure: show each failure with test name, error message, and traceback
    - On success: report concisely

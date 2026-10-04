@@ -14,7 +14,7 @@ cp .env.example .env
 ./scripts/bootstrap.sh
 ```
 
-Bootstrap generates and registers a random Ignition 8.3 API token, grants its local automation security level, stages the pinned BW Project Scan module, stages the local Git module when available, uploads/accepts/installs both, and restarts the Gateway. The mounted [`gw-init/git.yaml`](gw-init/git.yaml) commissions the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) as `git-example-project`. Generated credentials, config resources, module files, and the runtime clone remain ignored by this repository.
+Bootstrap generates and registers a random Ignition 8.3 API token, grants its local automation security level, stages the pinned BW Project Scan module, downloads the latest [Ignition Git module](https://github.com/WhiskeyHouse/ignition-git-module/releases/latest) release `.modl`, uploads/accepts/installs both, and restarts the Gateway. The mounted [`gw-init/git.yaml`](gw-init/git.yaml) commissions the public [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project) as `example-project` under `projects/`. Bootstrap then registers an `ign` profile against the generated token and runs `ign doctor`. Generated credentials, config resources, module files, and the runtime clone remain ignored by this repository.
 
 The Compose configuration enables unsigned modules only for this local development gateway. To deploy another module later:
 
@@ -37,7 +37,9 @@ From that project, run:
 /ignition:init-e2e
 ```
 
-The reference project at `projects/example-project/` already includes the generated gateway Jython/WebDev runner, a sample unit test, and the Perspective-aware Playwright scaffold. The same project is published separately and cloned by the Git module as `projects/git-example-project/`, allowing the module workflow to be exercised without writing Git metadata into the embedded reference project. Run the commands above when adding another project. Commit generated source to its owning repository, but not credentials, browser state, or reports.
+The sample that tests and the demo run against is the Git-module clone of [`agentic-ignition-example-project`](https://github.com/TheThoughtagen/agentic-ignition-example-project), not a second project committed in this repository. After bootstrap it lives at `projects/example-project/` and is gitignored because it has its own history. Commit generated test source in that sample repository. Use `/ignition:init-testing` and `/ignition:init-e2e` when adding another project.
+
+Ignition 8.3.9 will not load a mixed leaf-and-children script library (`testing/resource.json` with `"files": []`, or `starter/code.py` next to `starter/__tests__`), and Playwright needs a Perspective view mapped at `/`. Those assets belong in the sample repository.
 
 ## Validation
 
@@ -48,14 +50,13 @@ set -a; . ./.env; set +a
 ./scripts/test.sh
 ```
 
-The validation order is static lint → forced project scan → gateway Jython tests → Playwright. A nonzero test result blocks the command. To validate the Git module's authenticated Gateway page and `/data/git/projects` route independently:
+The validation order is `ign lint` → forced project scan → `ign testing run` → the sample's Playwright suite. A nonzero test result blocks the command. To validate the Git module's authenticated Gateway page and `/data/git/projects` route independently:
 
 ```bash
-cd projects/example-project/e2e
 IGNITION_URL=http://127.0.0.1:8088 \
   IGNITION_USER="$GATEWAY_ADMIN_USERNAME" \
   IGNITION_PASSWORD="$GATEWAY_ADMIN_PASSWORD" \
-  npm run test:git-module
+  ./scripts/run-git-module-ui-test.sh
 ```
 
 ## Record the walkthrough
@@ -73,7 +74,7 @@ Generated MP4 and GIF files are written under ignored `artifacts/` so they can b
 
 ## Repository rules
 
-- Git-tracked project files are the source of truth; the running gateway is a disposable development target.
+- Git-tracked stack files plus the commissioned sample repository are the sources of truth; the running gateway is a disposable development target.
 - Pin every runtime/tool version before release.
 - Never commit a gateway backup, runtime data, `.modl` artifact, token, password, or test account.
 - Never point this stack at a production gateway.

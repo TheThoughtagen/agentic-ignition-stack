@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-const projectName = "git-example-project";
+const projectName = process.env.IGNITION_PROJECT || "example-project";
 const repository =
+  process.env.GIT_SAMPLE_REPO_URI ||
   "https://github.com/TheThoughtagen/agentic-ignition-example-project.git";
 
 test("Git module lists the commissioned sample project", async ({ page }) => {

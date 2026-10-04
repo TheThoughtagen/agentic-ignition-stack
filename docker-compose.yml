@@ -19,9 +19,9 @@ services:
       - gateway-data:/usr/local/bin/ignition/data
       # Generated token/security resources make local API automation unattended.
       - ./gateway/config:/usr/local/bin/ignition/data/config/resources/core
-      # This bind mount is the Git-tracked source of truth for local projects.
+      # Bind mount for Ignition projects. Bootstrap commissions the GitHub sample into here.
       - ./projects:/usr/local/bin/ignition/data/projects
-      # The Git module commissions its public sample repository from this file.
+      # The Git module clones agentic-ignition-example-project from this commissioning map.
       - ./gw-init/git.yaml:/usr/local/bin/ignition/data/git.yaml:ro
 
 volumes:

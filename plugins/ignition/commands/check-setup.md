@@ -21,6 +21,7 @@ Run a full health check on the current Ignition project and report what's workin
 ### Gateway Connection
 - `gateway_reachable: true` → pass, show URL
 - `gateway_reachable: false` → warn, explain gateway needs to be running for tests. Show the URL that was probed.
+- If `ign` is on PATH, also run `ign doctor` and report failed checks. `ign doctor` can exit 0 while listing failures.
 
 ### Project Inheritance
 - `parent` is not null and `parent.root` found → pass, show parent name and what's inherited
@@ -63,12 +64,19 @@ Run a full health check on the current Ignition project and report what's workin
 - False → info, IDE completions for testing.* won't work. Suggest: `/init-testing`
 
 ### Ignition Resource Structure
-- Check for any directories in `ignition/script-python/` that are missing `resource.json` — these won't be loaded by the gateway.
+- Check for leaf script directories in `ignition/script-python/` that have `code.py` but no `resource.json` — those won't be loaded by the gateway. Package-only folders (no `code.py`) must **not** have `resource.json` on Ignition 8.3.
   ```bash
-  find <project_root>/ignition/script-python -type d -exec test ! -f '{}/resource.json' \; -print
+  find <project_root>/ignition/script-python -name code.py -printf '%h\n' | while read -r dir; do
+    [ -f "$dir/resource.json" ] || echo "missing resource.json: $dir"
+  done
+  find <project_root>/ignition/script-python -name resource.json -printf '%h\n' | while read -r dir; do
+    [ -f "$dir/code.py" ] && continue
+    find "$dir" -mindepth 2 -name code.py | grep -q . || continue
+    echo "package-only resource.json: $dir"
+  done
   ```
-  - None found → pass
-  - Found some → warn, list them. Explain that every directory needs resource.json.
+  - None missing and no package-only `resource.json` → pass
+  - Found some → warn, list them. Explain that every leaf with `code.py` needs resource.json, and package-only parents must not have one.
 
 3. Present results as a table with status icons:
    - PASS = working correctly
