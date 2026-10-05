@@ -1,7 +1,7 @@
 {
   "name": "ignition",
   "description": "Ignition development — API reference, expression language, auto-linting, test scaffolding, and automated testing for Ignition projects",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": {
     "name": "TheThoughtagen",
     "url": "https://github.com/TheThoughtagen"
