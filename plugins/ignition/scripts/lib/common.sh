@@ -4,13 +4,15 @@
 
 # Walk up from a directory to find the nearest project.json (Ignition project marker).
 # Usage: PROJECT_ROOT=$(find_project_root "$PWD") || exit 0
+# Stops when dirname stops changing: a Windows path ends at "C:" and a relative one at ".", never at "/".
 find_project_root() {
-  local dir="$1"
-  while [ "$dir" != "/" ]; do
+  local dir="$1" parent
+  while :; do
     if [ -f "$dir/project.json" ]; then echo "$dir"; return 0; fi
-    dir=$(dirname "$dir")
+    parent=$(dirname "$dir")
+    [ "$parent" = "$dir" ] && return 1
+    dir="$parent"
   done
-  return 1
 }
 
 # Write a file with existence check, dry-run support, and force overwrite.
