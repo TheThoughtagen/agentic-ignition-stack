@@ -37,7 +37,12 @@ if ! command -v ignition-lint &>/dev/null; then
   exit 0
 fi
 
-OUTPUT=$(ignition-lint --target "$FILE_PATH" --profile "$PROFILE" 2>&1) || true
+# --target takes a directory, and each Ignition resource is its own folder, so lint the edited file's folder.
+# Block only when ignition-lint fails: a clean run, or one with only info and style notes, still prints a report.
+OUTPUT=""
+if ! RESULT=$(ignition-lint --target "$(dirname "$FILE_PATH")" --profile "$PROFILE" --fail-on warning 2>&1); then
+  OUTPUT="$RESULT"
+fi
 
 if [ -n "$OUTPUT" ]; then
   jq -n \
