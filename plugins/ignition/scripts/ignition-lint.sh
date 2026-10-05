@@ -37,6 +37,10 @@ if ! command -v ignition-lint &>/dev/null; then
   exit 0
 fi
 
+# ignition-lint's report has emoji, which crash Python on Windows when stdout is a pipe
+# (https://github.com/TheThoughtagen/ignition-lint/issues/33)
+export PYTHONUTF8=1
+
 # --target takes a directory, and each Ignition resource is its own folder, so lint the edited file's folder.
 # Block only when ignition-lint fails: a clean run, or one with only info and style notes, still prints a report.
 OUTPUT=""
