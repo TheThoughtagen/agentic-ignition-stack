@@ -11,7 +11,7 @@
       "name": "ignition",
       "source": "./plugins/ignition",
       "description": "Ignition API knowledge, linting hooks, test scaffolding, and automated testing",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": {
         "name": "TheThoughtagen"
       },

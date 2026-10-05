@@ -44,15 +44,15 @@ The hook also requires `jq` for JSON parsing (pre-installed on most systems).
 
 ### Auto-Lint Hook
 
-After every Write or Edit, the hook checks if the file is inside an Ignition project (walks up from the file looking for `project.json`). If it is:
+After every Write or Edit of a `.py`, `view.json` or `tags.json` file, the hook checks if the file is inside an Ignition project (walks up from the file looking for `project.json`). If it is, it lints the file's resource folder:
 
 - `.py` files are linted with the `scripts-only` profile
 - `view.json` files are linted with the `perspective-only` profile
 - `tags.json` files are linted with the `full` profile
 
-Any issues are returned as structured JSON, which Claude reads and acts on — typically fixing the issue in its next edit.
+Warnings and errors are returned as structured JSON, which Claude reads and acts on — typically fixing the issue in its next edit. Info and style notes do not interrupt Claude.
 
-Files outside Ignition projects are ignored. The hook is safe for global install.
+Other files, and files outside Ignition projects, are ignored. The hook is safe for global install. On Windows it runs under Git Bash and needs `jq` on the `PATH`.
 
 ### Skills
 
