@@ -14,7 +14,7 @@ export default defineConfig({
   timeout: 60_000,
 
   use: {
-    baseURL: process.env.IGNITION_URL || "https://localhost:9043",
+    baseURL: process.env.IGNITION_URL || "http://127.0.0.1:8088",
     ignoreHTTPSErrors: true,
     actionTimeout: 15_000,
     trace: "on-first-retry",

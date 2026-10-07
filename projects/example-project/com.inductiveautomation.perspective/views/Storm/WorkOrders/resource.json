@@ -1,0 +1,5 @@
+{
+  "scope": "G", "version": 3, "restricted": false, "overridable": true,
+  "files": ["view.json"],
+  "attributes": {"lastModification": {"actor": "external", "timestamp": "2026-10-07T00:00:00Z"}}
+}

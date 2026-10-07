@@ -9,7 +9,7 @@
     "report": "npx playwright show-report"
   },
   "devDependencies": {
-    "@playwright/test": "^1.50.0",
-    "dotenv": "^16.4.0"
+    "@playwright/test": "1.63.0",
+    "dotenv": "16.6.1"
   }
 }

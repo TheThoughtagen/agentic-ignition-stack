@@ -28,7 +28,11 @@ set +a
 ./scripts/bootstrap-api-token.sh
 
 if [[ "${AUTO_INSTALL_MODULES:-true}" == "true" ]]; then
-  if [[ -f "$HOME/Downloads/Project-Scan-Endpoint.modl" ]]; then
+  if [[ "${CI:-false}" == "true" && ! -f modules/Project-Scan-Endpoint.modl ]]; then
+    echo 'CI requires the pinned, verified Project Scan Endpoint module before bootstrap.' >&2
+    exit 1
+  fi
+  if [[ "${CI:-false}" != "true" && -f "$HOME/Downloads/Project-Scan-Endpoint.modl" ]]; then
     ./scripts/stage-project-scan-module.sh "$HOME/Downloads/Project-Scan-Endpoint.modl"
   elif [[ ! -f modules/Project-Scan-Endpoint.modl ]]; then
     ./scripts/download-project-scan-module.sh

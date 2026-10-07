@@ -7,7 +7,7 @@ setup.setTimeout(60_000);
 
 setup("authenticate", async ({ page }) => {
   const project =
-    process.env.PERSPECTIVE_PROJECT || "MyProject";
+    process.env.PERSPECTIVE_PROJECT || "example-project";
 
   await page.goto(`/data/perspective/client/${project}`);
 

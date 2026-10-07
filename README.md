@@ -4,7 +4,7 @@ A public, development-only starter for Git-native Ignition 8.3 work with Docker 
 
 ## Start here
 
-Read [QUICKSTART.md](QUICKSTART.md). It covers prerequisites, commissioning, the project scan loop, agent setup, testing, security boundaries, and the optional Designer Git module.
+Read [QUICKSTART.md](QUICKSTART.md). It covers prerequisites, commissioning, the project scan loop, agent setup, testing, security boundaries, and the optional Designer Git module. For the Compose-backed Storm maintenance-call demo (mock external API → Gateway Jython → PostgreSQL → Perspective), see [demo/STORM-CALL.md](demo/STORM-CALL.md).
 
 ## Fast path
 
@@ -37,7 +37,7 @@ From that project, run:
 /ignition:init-e2e
 ```
 
-The reference project at `projects/example-project/` already includes the generated gateway Jython/WebDev runner, a sample unit test, and the Perspective-aware Playwright scaffold. The same project is published separately and cloned by the Git module as `projects/git-example-project/`, allowing the module workflow to be exercised without writing Git metadata into the embedded reference project. Run the commands above when adding another project. Commit generated source to its owning repository, but not credentials, browser state, or reports.
+The reference project at `projects/example-project/` includes a generated Jython/WebDev runner scaffold and a Perspective-aware Playwright scaffold; the separately validated `storm-tests` route is the runnable gateway test suite for this Compose demo. The same project is published separately and cloned by the Git module as `projects/git-example-project/`, allowing the module workflow to be exercised without writing Git metadata into the embedded reference project. Run the commands above when adding another project. Commit generated source to its owning repository, but not credentials, browser state, or reports.
 
 ## Validation
 
@@ -48,7 +48,7 @@ set -a; . ./.env; set +a
 ./scripts/test.sh
 ```
 
-The validation order is static lint → forced project scan → gateway Jython tests → Playwright. A nonzero test result blocks the command. To validate the Git module's authenticated Gateway page and `/data/git/projects` route independently:
+The validation order is static lint → forced project scan → gateway Jython tests → Playwright. A nonzero test result blocks the command. In this sample, the tested gateway route is `storm-tests` (seven rule/API/DB checks); the older nested `testing/run` scaffold is not used by the Storm validation pipeline. To validate the Git module's authenticated Gateway page and `/data/git/projects` route independently:
 
 ```bash
 cd projects/example-project/e2e

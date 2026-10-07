@@ -17,7 +17,7 @@ export class PerspectivePage {
   }
 
   private get project(): string {
-    return process.env.PERSPECTIVE_PROJECT || "MyProject";
+    return process.env.PERSPECTIVE_PROJECT || "example-project";
   }
 
   /** Open a Perspective session at the given page route. Call once per test. */

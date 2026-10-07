@@ -25,5 +25,8 @@ fi
 
 (
   cd "${project_dir}/e2e"
-  npx playwright test
+  npx playwright test --project=chromium
+  if [[ "${CI:-false}" == "true" ]]; then
+    npx playwright test tests/gateway/ci-login.spec.ts --project=gateway-chromium
+  fi
 )

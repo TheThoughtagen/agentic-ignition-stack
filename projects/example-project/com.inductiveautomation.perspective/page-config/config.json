@@ -1,0 +1,6 @@
+{
+  "pages": {
+    "/": {"title": "Storm | Work-order triage", "viewPath": "Storm/WorkOrders"}
+  },
+  "sharedDocks": {}
+}

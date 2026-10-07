@@ -19,11 +19,12 @@ jobs:
         run: bash -n scripts/*.sh
       - name: Validate Compose interpolation
         env:
-          IGNITION_IMAGE: inductiveautomation/ignition:8.3.0
+          IGNITION_IMAGE: inductiveautomation/ignition:8.3.9
           IGNITION_PORT: "8088"
           ACCEPT_IGNITION_EULA: Y
           GATEWAY_ADMIN_USERNAME: ci-admin
           GATEWAY_ADMIN_PASSWORD: not-a-real-password
+          DEMO_DB_PASSWORD: not-a-real-db-password
         run: docker compose config --quiet
       - name: Check for tracked environment files
         run: |
@@ -33,3 +34,58 @@ jobs:
         with:
           args: --no-progress README.md QUICKSTART.md SECURITY.md CONTRIBUTING.md
           fail: true
+
+  gateway-and-browser:
+    name: Gateway + Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: projects/example-project/e2e/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install lint and browser dependencies
+        run: |
+          python -m pip install ignition-lint-toolkit==1
+          npm ci --prefix projects/example-project/e2e
+          cd projects/example-project/e2e
+          npx playwright install --with-deps chromium
+      - name: Create ephemeral local credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          cp .env.example .env
+          admin_password="$(openssl rand -hex 24)"
+          db_password="$(openssl rand -hex 24)"
+          sed -i "s/^GATEWAY_ADMIN_PASSWORD=.*/GATEWAY_ADMIN_PASSWORD=$admin_password/" .env
+          sed -i "s/^DEMO_DB_PASSWORD=.*/DEMO_DB_PASSWORD=$db_password/" .env
+          printf 'GIT_MODULE_SOURCE=/nonexistent/Git-unsigned.modl\n' >> .env
+          printf 'IGNITION_USER=storm-ci\n' >> "$GITHUB_ENV"
+          printf 'IGNITION_PASSWORD=%s\n' "$admin_password" >> "$GITHUB_ENV"
+          unset admin_password db_password
+      - name: Verify pinned Project Scan Endpoint artifact
+        run: ./scripts/download-project-scan-module.sh
+      - name: Bootstrap isolated Compose gateway and demo database
+        run: ./scripts/storm-demo.sh up
+      - name: Provision isolated CI browser login
+        run: python scripts/configure-ci-login.py
+      - name: Run lint, in-gateway tests, and Chromium E2E
+        run: ./scripts/storm-demo.sh test
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: |
+          docker compose ps || true
+          docker compose logs --tail=150 ignition postgres work-orders-api || true
+      - name: Tear down disposable gateway
+        if: always()
+        run: docker compose down --volumes --remove-orphans || true
