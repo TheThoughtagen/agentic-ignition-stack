@@ -8,6 +8,7 @@ import json
 import os
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 
@@ -98,8 +99,19 @@ if __name__ == "__main__":
     try:
         main()
     except urllib.error.HTTPError as exc:
-        # An API error body could echo a password. Never print it.
-        print("CI login provisioning failed with HTTP", exc.code)
+        # An API error body could echo a password. Never print it or the URL.
+        path = urllib.parse.urlparse(exc.url).path
+        if "/resources/ignition/user-source" in path:
+            phase = "user-source creation"
+        elif "/resources/ignition/identity-provider" in path:
+            phase = "identity-provider creation"
+        elif "/scim/" in path:
+            phase = "test-user creation"
+        elif "/resources/ignition/security-properties" in path:
+            phase = "security-properties update"
+        else:
+            phase = "Gateway API request"
+        print("CI login provisioning failed during {} with HTTP {}".format(phase, exc.code))
         raise SystemExit(1)
     except urllib.error.URLError:
         print("CI login provisioning failed: Gateway unreachable")
