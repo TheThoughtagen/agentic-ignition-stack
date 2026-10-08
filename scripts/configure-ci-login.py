@@ -57,9 +57,22 @@ def main():
         "settings": {"passwordMinLength": 8},
     })
     create_resource("identity-provider", "demo-ci", {
-        "profile": {"type": "internal"},
-        "settings": {"userSource": "demo-ci", "authMethods": [{"type": "basic", "config": {}}],
-                     "sessionInactivityTimeout": 30},
+        "profile": {
+            "type": "internal", "securityLevelRules": {"nodes": []},
+            "userAttributeMapper": {
+                "email": {"type": "direct", "config": {"attributePath": "email"}},
+                "firstName": {"type": "direct", "config": {"attributePath": "given_name"}},
+                "id": {"type": "direct", "config": {"attributePath": "sub"}},
+                "lastName": {"type": "direct", "config": {"attributePath": "family_name"}},
+                "roles": {"type": "direct", "config": {"attributePath": "roles"}},
+                "userName": {"type": "direct", "config": {"attributePath": "preferred_username"}},
+            },
+            "userGrants": {"id": {}, "username": {}},
+        },
+        "settings": {
+            "userSource": "demo-ci", "authMethods": [{"type": "basic", "config": {}}],
+            "rememberMeExp": 0, "sessionExp": 0, "sessionInactivityTimeout": 30,
+        },
     })
     user = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
