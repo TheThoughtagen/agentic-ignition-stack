@@ -80,7 +80,7 @@ def main():
     }
     for attempt in range(20):
         try:
-            created = request("/data/api/v1/scim/demo-ci/v2/Users", "POST", user)
+            created = request("/data/api/v1/scim/demo-ci/Users", "POST", user)
             break
         except urllib.error.HTTPError as exc:
             if exc.code not in (404, 503) or attempt == 19:
