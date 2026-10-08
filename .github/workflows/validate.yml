@@ -88,12 +88,13 @@ jobs:
           curl --fail --location --silent --show-error --output modules/Git-2.3.4-signed.modl \
             https://github.com/WhiskeyHouse/ignition-git-module/releases/download/v2.3.4/Git-2.3.4-signed.modl
           printf '%s  %s\n' 'b74070346e587b1e1c14ff5093cc70625f7bfa14c2d24b24e7a0888a619b33eb' 'modules/Git-2.3.4-signed.modl' | sha256sum -c -
-      - name: Make project bind mount writable by Gateway
+      - name: Make disposable Gateway bind mounts writable
         run: |
-          # The Ignition container writes projects/.resources as its non-root user.
-          # This checkout is disposable and the Git module must also create the sample clone.
-          mkdir -p projects
-          chmod 0777 projects
+          # Ignition writes projects/.resources and config/resources/core as a
+          # non-root container user. Only the two bind-mount trees in this
+          # ephemeral CI checkout are writable; the token file stays private.
+          mkdir -p projects gateway/config/ignition
+          chmod 0777 projects gateway/config gateway/config/ignition
       - name: Bootstrap isolated Gateway and commissioned sample
         run: ./scripts/work-order-demo.sh up
       - name: Provision CI-only browser identity
