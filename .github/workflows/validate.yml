@@ -88,6 +88,12 @@ jobs:
           curl --fail --location --silent --show-error --output modules/Git-2.3.4-signed.modl \
             https://github.com/WhiskeyHouse/ignition-git-module/releases/download/v2.3.4/Git-2.3.4-signed.modl
           printf '%s  %s\n' 'b74070346e587b1e1c14ff5093cc70625f7bfa14c2d24b24e7a0888a619b33eb' 'modules/Git-2.3.4-signed.modl' | sha256sum -c -
+      - name: Make project bind mount writable by Gateway
+        run: |
+          # The Ignition container writes projects/.resources as its non-root user.
+          # This checkout is disposable and the Git module must also create the sample clone.
+          mkdir -p projects
+          chmod 0777 projects
       - name: Bootstrap isolated Gateway and commissioned sample
         run: ./scripts/work-order-demo.sh up
       - name: Provision CI-only browser identity
@@ -98,7 +104,7 @@ jobs:
         run: ./scripts/work-order-demo.sh test
       - name: Run CI Gateway login smoke
         run: |
-          npm ci --prefix e2e --cache "$RUNNER_TEMP/npm-cache"
+          npm install --prefix e2e --no-package-lock --cache "$RUNNER_TEMP/npm-cache"
           cd e2e
           npx playwright test tests/ci-login.spec.ts --project=gateway-chromium
       - name: Report service status on failure

@@ -10,6 +10,7 @@ set -a
 set +a
 : "${DEMO_DB_PASSWORD:?Set DEMO_DB_PASSWORD in ignored .env}"
 : "${IGNITION_PROJECT:?Set IGNITION_PROJECT in ignored .env}"
+: "${IGNITION_GATEWAY_URL:?Set IGNITION_GATEWAY_URL in ignored .env}"
 
 case "${1:-help}" in
   up)
