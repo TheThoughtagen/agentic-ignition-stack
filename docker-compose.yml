@@ -1,7 +1,40 @@
 services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: work_order_demo
+      POSTGRES_USER: work_order_demo
+      POSTGRES_PASSWORD: ${DEMO_DB_PASSWORD:?Set a unique local demo database password in .env}
+    volumes:
+      - work-order-postgres:/var/lib/postgresql/data
+      - ./demo/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U work_order_demo -d work_order_demo"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  work-orders-api:
+    image: python:3.12-slim
+    restart: unless-stopped
+    command: ["python", "/app/server.py"]
+    volumes:
+      - ./demo/api/server.py:/app/server.py:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   ignition:
     image: ${IGNITION_IMAGE:?Set IGNITION_IMAGE in .env to an explicit, tested Ignition tag}
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      work-orders-api:
+        condition: service_healthy
     ports:
       - "127.0.0.1:${IGNITION_PORT:-8088}:8088"
     environment:
@@ -10,6 +43,7 @@ services:
       DISABLE_QUICKSTART: "true"
       GATEWAY_ADMIN_USERNAME: ${GATEWAY_ADMIN_USERNAME:?Set a local development username in .env}
       GATEWAY_ADMIN_PASSWORD: ${GATEWAY_ADMIN_PASSWORD:?Set a local development password in .env}
+      WORK_ORDER_DB_PASSWORD: ${DEMO_DB_PASSWORD:?Set a unique local demo database password in .env}
     # Local development only: enables testing unsigned modules such as a local Git-module build.
     command: >
       -n agentic-ignition-gw -m 2048 -- wrapper.java.maxmemory=1024
@@ -26,3 +60,4 @@ services:
 
 volumes:
   gateway-data:
+  work-order-postgres:

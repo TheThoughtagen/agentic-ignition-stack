@@ -19,11 +19,12 @@ jobs:
         run: bash -n scripts/*.sh
       - name: Validate Compose interpolation
         env:
-          IGNITION_IMAGE: inductiveautomation/ignition:8.3.0
+          IGNITION_IMAGE: inductiveautomation/ignition:8.3.9
           IGNITION_PORT: "8088"
           ACCEPT_IGNITION_EULA: Y
           GATEWAY_ADMIN_USERNAME: ci-admin
           GATEWAY_ADMIN_PASSWORD: not-a-real-password
+          DEMO_DB_PASSWORD: not-a-real-db-password
         run: docker compose config --quiet
       - name: Check for tracked environment files
         run: |
@@ -33,3 +34,110 @@ jobs:
         with:
           args: --no-progress README.md QUICKSTART.md SECURITY.md CONTRIBUTING.md
           fail: true
+
+  gateway-and-browser:
+    name: Gateway + sample Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CLI, linter, and Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          cli='ign-v1.4.1-x86_64-unknown-linux-gnu.tar.gz'
+          base='https://github.com/TheThoughtagen/ignition-cli/releases/download/v1.4.1'
+          curl --fail --location --silent --show-error --output "$RUNNER_TEMP/$cli" "$base/$cli"
+          printf '%s  %s\n' '229535bab115a6711a128664714aa03bc527400f94ea668fa326aabb17e731da' "$RUNNER_TEMP/$cli" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$cli" -C "$RUNNER_TEMP"
+          mkdir -p "$HOME/.local/bin"
+          install -m 755 "$RUNNER_TEMP/${cli%.tar.gz}/ign" "$HOME/.local/bin/ign"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          python -m pip install ignition-lint-toolkit==1
+          npx --yes playwright@1.63.0 install --with-deps chromium
+      - name: Create ephemeral local credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          cp .env.example .env
+          admin_password="$(openssl rand -hex 24)"
+          db_password="$(openssl rand -hex 24)"
+          sed -i "s/^GATEWAY_ADMIN_PASSWORD=.*/GATEWAY_ADMIN_PASSWORD=$admin_password/" .env
+          sed -i "s/^DEMO_DB_PASSWORD=.*/DEMO_DB_PASSWORD=$db_password/" .env
+          printf 'GIT_MODULE_VERSION=v2.3.4\n' >> .env
+          printf 'IGNITION_USER=demo-ci\n' >> "$GITHUB_ENV"
+          printf 'IGNITION_PASSWORD=%s\n' "$admin_password" >> "$GITHUB_ENV"
+          unset admin_password db_password
+      - name: Verify pinned development modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./scripts/download-project-scan-module.sh
+          mkdir -p modules
+          curl --fail --location --silent --show-error --output modules/Git-2.3.4-signed.modl \
+            https://github.com/WhiskeyHouse/ignition-git-module/releases/download/v2.3.4/Git-2.3.4-signed.modl
+          printf '%s  %s\n' 'b74070346e587b1e1c14ff5093cc70625f7bfa14c2d24b24e7a0888a619b33eb' 'modules/Git-2.3.4-signed.modl' | sha256sum -c -
+      - name: Make disposable Gateway bind mounts writable
+        run: |
+          # Ignition writes projects/.resources and rewrites generated config
+          # files as its non-root container user. Bootstrap creates the config
+          # resources later, so run this step afterwards as well.
+          mkdir -p projects gateway/config
+          chmod 0777 projects gateway/config
+      - name: Generate Gateway token resources with container-writable modes
+        run: |
+          set -euo pipefail
+          ./scripts/bootstrap-api-token.sh
+          # Restrict this chmod to generated resources in disposable CI; never
+          # loosen secrets/ignition-api-token or files outside the bind mount.
+          find gateway/config -type d -exec chmod 0777 {} +
+          find gateway/config -type f -exec chmod 0666 {} +
+      - name: Bootstrap isolated Gateway and commissioned sample
+        run: ./scripts/work-order-demo.sh up
+      - name: Make commissioned sample e2e writable for browser tests
+        run: |
+          set -euo pipefail
+          set -a
+          . ./.env
+          set +a
+          # The Git module cloned the sample as the container's non-root user,
+          # so the runner cannot create e2e/node_modules inside the bind mount.
+          # Widening modes keeps every existing container permission intact.
+          sudo chmod -R a+rwX "projects/${IGNITION_PROJECT}/e2e"
+      - name: Provision CI-only browser identity
+        env:
+          IGNITION_GATEWAY_URL: http://127.0.0.1:8088
+        run: python scripts/configure-ci-login.py
+      - name: Run lint, Gateway assertions, and sample browser tests
+        run: ./scripts/work-order-demo.sh test
+      - name: Run CI Gateway login smoke
+        run: |
+          npm install --prefix e2e --no-package-lock --cache "$RUNNER_TEMP/npm-cache"
+          cd e2e
+          status=0
+          npx playwright test tests/ci-login.spec.ts --project=gateway-chromium || status=$?
+          if [[ "$status" -ne 0 ]]; then
+            # Playwright saves an ARIA snapshot of the page at failure time.
+            echo '--- Playwright error context (page snapshot at failure) ---'
+            cat test-results/*/error-context.md 2>/dev/null || true
+            exit "$status"
+          fi
+      - name: Report service status on failure
+        if: failure()
+        run: |
+          docker compose ps || true
+          docker compose logs --tail=150 ignition postgres work-orders-api || true
+      - name: Tear down disposable services
+        if: always()
+        run: docker compose down --volumes --remove-orphans || true
