@@ -52,9 +52,20 @@ def main():
         raise RuntimeError("CI browser user must be demo-ci")
 
     create_resource("user-source", "demo-ci", {
-        "profile": {"type": "INTERNAL", "lockoutEnabled": True,
-                    "lockoutAttempts": 5, "lockoutWindow": 15},
-        "settings": {"passwordMinLength": 8},
+        "profile": {
+            "type": "INTERNAL", "cacheValidationTimeout": 15,
+            "failoverMode": "HARD", "lockoutEnabled": True,
+            "lockoutAttempts": 5, "lockoutWindow": 15,
+            "scheduleRestricted": False,
+        },
+        "settings": {
+            # Disposable CI user only; no production password policy changes.
+            # The test credential is a random 48-character hex string.
+            "passwordComplexity": 0, "passwordContainsPassword": True,
+            "passwordContainsUserName": True, "passwordHistory": 0,
+            "passwordMaxAge": 0, "passwordMaxRepeatedChars": 3,
+            "passwordMinLength": 8,
+        },
     })
     create_resource("identity-provider", "demo-ci", {
         "profile": {
