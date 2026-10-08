@@ -90,11 +90,19 @@ jobs:
           printf '%s  %s\n' 'b74070346e587b1e1c14ff5093cc70625f7bfa14c2d24b24e7a0888a619b33eb' 'modules/Git-2.3.4-signed.modl' | sha256sum -c -
       - name: Make disposable Gateway bind mounts writable
         run: |
-          # Ignition writes projects/.resources and config/resources/core as a
-          # non-root container user. Only the two bind-mount trees in this
-          # ephemeral CI checkout are writable; the token file stays private.
-          mkdir -p projects gateway/config/ignition
-          chmod 0777 projects gateway/config gateway/config/ignition
+          # Ignition writes projects/.resources and rewrites generated config
+          # files as its non-root container user. Bootstrap creates the config
+          # resources later, so run this step afterwards as well.
+          mkdir -p projects gateway/config
+          chmod 0777 projects gateway/config
+      - name: Generate Gateway token resources with container-writable modes
+        run: |
+          set -euo pipefail
+          ./scripts/bootstrap-api-token.sh
+          # Restrict this chmod to generated resources in disposable CI; never
+          # loosen secrets/ignition-api-token or files outside the bind mount.
+          find gateway/config -type d -exec chmod 0777 {} +
+          find gateway/config -type f -exec chmod 0666 {} +
       - name: Bootstrap isolated Gateway and commissioned sample
         run: ./scripts/work-order-demo.sh up
       - name: Provision CI-only browser identity
