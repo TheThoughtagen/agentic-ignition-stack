@@ -125,7 +125,14 @@ jobs:
         run: |
           npm install --prefix e2e --no-package-lock --cache "$RUNNER_TEMP/npm-cache"
           cd e2e
-          npx playwright test tests/ci-login.spec.ts --project=gateway-chromium
+          status=0
+          npx playwright test tests/ci-login.spec.ts --project=gateway-chromium || status=$?
+          if [[ "$status" -ne 0 ]]; then
+            # Playwright saves an ARIA snapshot of the page at failure time.
+            echo '--- Playwright error context (page snapshot at failure) ---'
+            cat test-results/*/error-context.md 2>/dev/null || true
+            exit "$status"
+          fi
       - name: Report service status on failure
         if: failure()
         run: |

@@ -8,10 +8,29 @@ test("CI browser user can sign into local Gateway", async ({ page }) => {
 
   await page.goto("/data/app/login");
   await expect(page).toHaveURL(/\/idp\/demo-ci\/authn\/login/);
-  await page.getByRole("button", { name: "Log In", exact: true }).click();
-  await page.locator('input[name="username"]').fill(user);
-  await page.locator("div.submit-button").click();
-  await page.locator('input[name="password"]').fill(password);
+
+  // The internal IdP renders the classic Ignition login form: username and
+  // password fields on one page (same component as the sample's auth.setup).
+  // Some layouts show an intermediate "Log In" button first; click it only
+  // when the form itself is not already present.
+  const loginButton = page.getByRole("button", { name: "Log In", exact: true });
+  const usernameField = page
+    .locator("input.username-field, input[name='username']")
+    .first();
+  await loginButton.or(usernameField).waitFor({ state: "visible", timeout: 15_000 });
+  const formVisible = await usernameField.isVisible().catch(() => false);
+  if (!formVisible && (await loginButton.isVisible().catch(() => false))) {
+    await loginButton.click();
+  }
+
+  await page
+    .locator("input.username-field, input[name='username']")
+    .first()
+    .fill(user);
+  await page
+    .locator("input.password-field, input[name='password']")
+    .first()
+    .fill(password);
   await page.locator("div.submit-button").click();
   await page.waitForURL((url) => !url.pathname.includes("/authn/login"), {
     timeout: 30_000,
