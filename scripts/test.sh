@@ -37,6 +37,10 @@ export PERSPECTIVE_PROJECT="${IGNITION_PROJECT}"
 
 (
   cd "${project_dir}/e2e"
-  [[ -d node_modules ]] || npm install --no-package-lock
-  npx playwright test
+  if [[ -f package-lock.json ]]; then
+    [[ -d node_modules ]] || npm ci
+  else
+    [[ -d node_modules ]] || npm install --no-package-lock
+  fi
+  npx playwright test --project=chromium
 )

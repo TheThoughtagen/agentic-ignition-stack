@@ -50,7 +50,7 @@ set -a; . ./.env; set +a
 ./scripts/test.sh
 ```
 
-The validation order is `ign lint` → forced project scan → `ign testing run` → the sample's Playwright suite. A nonzero test result blocks the command. To validate the Git module's authenticated Gateway page and `/data/git/projects` route independently:
+With the generic work-order sample, validation runs `ign lint` → forced project scan → seven Gateway-native work-order checks → the sample's Playwright suite. The standalone `ign testing run` command remains available for other projects, but this demo does not use the older nested scaffold that could report zero tests as success. A nonzero test result blocks the command. For local setup and CI details, see [the work-order demo guide](demo/WORK-ORDER-DEMO.md). To validate the Git module's authenticated Gateway page and `/data/git/projects` route independently:
 
 ```bash
 IGNITION_URL=http://127.0.0.1:8088 \
