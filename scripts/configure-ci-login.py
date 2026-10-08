@@ -125,6 +125,24 @@ if __name__ == "__main__":
         else:
             phase = "Gateway API request"
         print("CI login provisioning failed during {} with HTTP {}".format(phase, exc.code))
+        if phase == "test-user creation":
+            # SCIM errors may echo submitted credentials: report only a fixed
+            # allowlist of diagnostic categories, never raw detail or payload.
+            try:
+                detail = json.load(exc).get("detail", "").lower()
+            except (ValueError, UnicodeError, OSError):
+                detail = ""
+            categories = (
+                ("user source", "user-source configuration"),
+                ("password", "password policy"),
+                ("schema", "SCIM schema"),
+                ("username", "username validation"),
+                ("user name", "username validation"),
+                ("required", "required field"),
+                ("not found", "resource lookup"),
+            )
+            reason = next((label for token, label in categories if token in detail), "unknown")
+            print("SCIM rejection category: {}".format(reason))
         raise SystemExit(1)
     except urllib.error.URLError:
         print("CI login provisioning failed: Gateway unreachable")
