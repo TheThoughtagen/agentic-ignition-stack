@@ -43,9 +43,16 @@ export PYTHONUTF8=1
 
 # --target takes a directory, and each Ignition resource is its own folder, so lint the edited file's folder.
 # Block only when ignition-lint fails: a clean run, or one with only info and style notes, still prints a report.
+# Nonzero exit with no stdout/stderr still blocks — otherwise OUTPUT stays empty and the edit slips through.
 OUTPUT=""
-if ! RESULT=$(ignition-lint --target "$(dirname "$FILE_PATH")" --profile "$PROFILE" --fail-on warning 2>&1); then
-  OUTPUT="$RESULT"
+STATUS=0
+RESULT=$(ignition-lint --target "$(dirname "$FILE_PATH")" --profile "$PROFILE" --fail-on warning 2>&1) || STATUS=$?
+if [ "$STATUS" -ne 0 ]; then
+  if [ -n "$RESULT" ]; then
+    OUTPUT="$RESULT"
+  else
+    OUTPUT="ignition-lint exited with status $STATUS (no output)"
+  fi
 fi
 
 if [ -n "$OUTPUT" ]; then
