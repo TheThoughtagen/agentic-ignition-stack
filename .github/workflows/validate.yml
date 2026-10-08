@@ -105,6 +105,16 @@ jobs:
           find gateway/config -type f -exec chmod 0666 {} +
       - name: Bootstrap isolated Gateway and commissioned sample
         run: ./scripts/work-order-demo.sh up
+      - name: Make commissioned sample e2e writable for browser tests
+        run: |
+          set -euo pipefail
+          set -a
+          . ./.env
+          set +a
+          # The Git module cloned the sample as the container's non-root user,
+          # so the runner cannot create e2e/node_modules inside the bind mount.
+          # Widening modes keeps every existing container permission intact.
+          sudo chmod -R a+rwX "projects/${IGNITION_PROJECT}/e2e"
       - name: Provision CI-only browser identity
         env:
           IGNITION_GATEWAY_URL: http://127.0.0.1:8088
