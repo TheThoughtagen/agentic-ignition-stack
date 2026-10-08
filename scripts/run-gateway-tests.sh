@@ -15,8 +15,26 @@ assert_project_matches_git_yaml
 
 # The generic work-order suite uses its own flat, Gateway-native endpoint.
 # Unlike an older nested scaffold, an empty test discovery cannot pass here.
-response="$(curl --fail --silent --show-error --request POST \
-  "${IGNITION_GATEWAY_URL%/}/system/webdev/${IGNITION_PROJECT}/work-order-tests")"
+endpoint="${IGNITION_GATEWAY_URL%/}/system/webdev/${IGNITION_PROJECT}/work-order-tests"
+
+# The project scan immediately before this test makes the Gateway restart the
+# project's gateway scripts. A POST racing that restart fails with a spurious
+# 500: WebDev has no compiled script scope yet ("this.sys is null" in the
+# Gateway log). Retry briefly. --fail-with-body keeps a failing response body
+# visible so a real defect still prints its traceback.
+response=""
+for attempt in 1 2 3 4 5; do
+  if response="$(curl --fail-with-body --silent --show-error --request POST "$endpoint")"; then
+    break
+  fi
+  if [[ "$attempt" -eq 5 ]]; then
+    echo "Gateway work-order tests endpoint kept failing; last response body:" >&2
+    printf '%s\n' "$response" >&2
+    exit 1
+  fi
+  printf 'Gateway work-order tests attempt %s failed; gateway scripts may be restarting, retrying.\n' "$attempt" >&2
+  sleep 3
+done
 printf '%s\n' "$response" | jq .
 printf '%s' "$response" | jq --exit-status \
   '(.total > 0) and (.failed == 0) and (.errors == 0)' >/dev/null
